@@ -2,6 +2,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardData } from "../RentalWizard";
+import { getProvinceRules, validateTerms } from "@/lib/canadaRentalRules";
+import { useMemo } from "react";
+import InspectionChecklist from "./InspectionChecklist";
 
 interface RentalTermsStepProps {
   data: WizardData;
@@ -13,8 +16,37 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
     updateData('terms', { [field]: value });
   };
 
+  const numbers = {
+    rent: parseFloat(data.terms.rentAmount || "0"),
+    deposit: parseFloat(data.terms.securityDeposit || "0"),
+    lateFee: parseFloat(data.terms.lateFeesAmount || "0"),
+  };
+
+  const validation = useMemo(() => {
+    const province = data.jurisdiction?.provinceCode as any;
+    if (!province) return { warnings: [], errors: [] };
+    return validateTerms(province, isFinite(numbers.rent) ? numbers.rent : undefined, isFinite(numbers.deposit) ? numbers.deposit : undefined, isFinite(numbers.lateFee) ? numbers.lateFee : undefined);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.jurisdiction?.provinceCode, data.terms.rentAmount, data.terms.securityDeposit, data.terms.lateFeesAmount]);
+
+  const provinceRules = getProvinceRules(data.jurisdiction?.provinceCode as any);
+  const isOntario = data.jurisdiction?.provinceCode === "ON";
+
   return (
     <div className="space-y-6">
+      {provinceRules && (
+        <div className="bg-accent/50 p-4 rounded-lg text-sm text-muted-foreground">
+          <div className="font-medium text-foreground">Jurisdiction: {provinceRules.name}</div>
+          {provinceRules.securityDeposit.allowed ? (
+            <div>
+              Security deposit max: {provinceRules.securityDeposit.maxMonths ? `${provinceRules.securityDeposit.maxMonths} month(s) of rent` : 'see notes'}. {provinceRules.securityDeposit.notes}
+            </div>
+          ) : (
+            <div>Security/damage deposits not allowed. {provinceRules.securityDeposit.notes}</div>
+          )}
+          {provinceRules.lateFees?.notes && <div>Late fees: {provinceRules.lateFees.notes}{provinceRules.lateFees.maxAmountCAD ? ` (cap $${provinceRules.lateFees.maxAmountCAD})` : ''}</div>}
+        </div>
+      )}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="rent-amount">Monthly Rent Amount *</Label>
@@ -31,21 +63,43 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
           </div>
         </div>
 
-        <div className="space-y-2">
+        {!isOntario && (
+          <div className="space-y-2">
           <Label htmlFor="security-deposit">Security Deposit *</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
+              <Input
+                id="security-deposit"
+                type="number"
+                value={data.terms.securityDeposit}
+                onChange={(e) => handleChange('securityDeposit', e.target.value)}
+                placeholder="2500"
+                className="bg-background pl-8"
+                aria-label="Security Deposit"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {isOntario && (
+        <div className="space-y-2">
+          <Label htmlFor="rent-deposit">Rent Deposit (Last Month’s Rent)</Label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
             <Input
-              id="security-deposit"
+              id="rent-deposit"
               type="number"
-              value={data.terms.securityDeposit}
-              onChange={(e) => handleChange('securityDeposit', e.target.value)}
-              placeholder="2500"
+              value={(data as any).terms.rentDeposit || ""}
+              onChange={(e) => updateData('terms', { ...(data.terms as any), rentDeposit: e.target.value })}
+              placeholder="1800"
               className="bg-background pl-8"
+              aria-label="Rent Deposit (Last Month’s Rent)"
             />
           </div>
+          <p className="text-xs text-muted-foreground">Ontario allows a rent deposit up to one month’s rent, with interest at the guideline. Security/damage deposits and pet deposits are not allowed.</p>
         </div>
-      </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
@@ -72,9 +126,9 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="rent-due-date">Rent Due Date Each Month *</Label>
-        <Select onValueChange={(value) => handleChange('rentDueDate', value)} value={data.terms.rentDueDate}>
-          <SelectTrigger className="bg-background">
+        <Label id="label-rent-due" htmlFor="rent-due">Rent Due Date Each Month *</Label>
+            <Select onValueChange={(value) => handleChange('rentDueDate', value)} value={data.terms.rentDueDate}>
+          <SelectTrigger id="rent-due" data-testid="rent-due" aria-labelledby="label-rent-due rent-due" className="bg-background">
             <SelectValue placeholder="Select due date" />
           </SelectTrigger>
           <SelectContent>
@@ -88,7 +142,7 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
 
       <div className="border-t pt-6">
         <h4 className="font-semibold text-foreground mb-4">Late Fee Terms</h4>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="late-fees-amount">Late Fee Amount</Label>
@@ -101,8 +155,13 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
                 onChange={(e) => handleChange('lateFeesAmount', e.target.value)}
                 placeholder="100"
                 className="bg-background pl-8"
+                disabled={isOntario}
+                aria-label="Late Fee Amount"
               />
             </div>
+            {isOntario && (
+              <p className="text-xs text-muted-foreground">Ontario does not allow flat late fees in leases. Do not set a late fee.</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -122,12 +181,26 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
         </div>
       </div>
 
-      <div className="bg-accent/50 p-4 rounded-lg">
-        <p className="text-sm text-muted-foreground">
-          <strong>Legal Note:</strong> Late fee amounts and grace periods must comply with your state's rental laws. 
-          Some states limit late fees to a percentage of rent or require specific grace periods.
-        </p>
-      </div>
+      {(validation.errors.length > 0 || validation.warnings.length > 0) && (
+        <div className="bg-accent/50 p-4 rounded-lg text-sm">
+          {validation.errors.length > 0 && (
+            <div className="text-red-600 space-y-1">
+              {validation.errors.map((e, i) => (
+                <div key={`err-${i}`}>• {e}</div>
+              ))}
+            </div>
+          )}
+          {validation.warnings.length > 0 && (
+            <div className="text-muted-foreground mt-2 space-y-1">
+              {validation.warnings.map((w, i) => (
+                <div key={`warn-${i}`}>• {w}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <InspectionChecklist />
     </div>
   );
 };

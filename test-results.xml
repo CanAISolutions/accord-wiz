@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="10" failures="0" errors="0" time="21.901">
+    <testsuite name="tests/rtl/RentalWizard.gating.test.tsx" timestamp="2025-08-08T20:19:20.294Z" hostname="DESKTOP-BGMEO6L" tests="1" failures="0" errors="0" skipped="0" time="1.0794569">
+        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; disables Next until Jurisdiction selected" time="1.0714469">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/unit/canadaRentalRules.all-provinces.test.ts" timestamp="2025-08-08T20:19:20.303Z" hostname="DESKTOP-BGMEO6L" tests="4" failures="0" errors="0" skipped="0" time="0.0169782">
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; ON prohibits security deposit and late fee" time="0.0081215">
+        </testcase>
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; BC caps late fee and security to 0.5 months" time="0.0014116">
+        </testcase>
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; AB allows up to 1 month security without error" time="0.0007619">
+        </testcase>
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; All provinces defined with names" time="0.0022213">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/unit/canadaRentalRules.test.ts" timestamp="2025-08-08T20:19:20.328Z" hostname="DESKTOP-BGMEO6L" tests="3" failures="0" errors="0" skipped="0" time="0.0142369">
+        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; BC: caps security at half month and late fee at 25" time="0.0082951">
+        </testcase>
+        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; ON: blocks security deposit, allows rent deposit warning" time="0.001138">
+        </testcase>
+        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; AB: security up to one month; no error within limit" time="0.0006926">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/unit/useStepValidity.test.ts" timestamp="2025-08-08T20:19:20.343Z" hostname="DESKTOP-BGMEO6L" tests="2" failures="0" errors="0" skipped="0" time="0.0216963">
+        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity &gt; step 1 invalid without province" time="0.0046664">
+        </testcase>
+        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity &gt; step 5 enforces ON late fee/security deposit prohibitions" time="0.0120897">
+        </testcase>
+    </testsuite>
+</testsuites>

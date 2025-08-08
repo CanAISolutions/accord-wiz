@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="2" failures="1" errors="0" time="23.976">
+    <testsuite name="tests/rtl/RentalWizard.gating.test.tsx" timestamp="2025-08-08T22:23:57.047Z" hostname="DESKTOP-BGMEO6L" tests="2" failures="1" errors="0" skipped="0" time="6.3803684">
+        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; disables Next until Jurisdiction selected" time="1.0559231">
+        </testcase>
+        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; requires mandatory clauses before Next on clauses step" time="5.3135636">
+            <failure message="Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with &quot;testTimeout&quot;." type="Error">
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with &quot;testTimeout&quot;.
+            </failure>
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -1,0 +1,45 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Create Vitest skeleton for validation hooks and terms step",
+        "description": "Set up unit and RTL tests for `useStepValidity` and `RentalTermsStep` focusing on province-aware validation and gating.",
+        "details": "- Add tests: `tests/unit/useStepValidity.test.ts`, expand RTL suite.\n- Ensure selectors match checklist labels.\n- Export JUnit to `test-results/vitest/results.xml`.",
+        "testStrategy": "Vitest with jsdom; @testing-library/react for RTL; verify error messages and Next disabled until valid.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Vitest skeleton for useStepValidity",
+            "description": "Add or verify unit test scaffolding for validation logic; ensure edge cases for ON late fee/security deposit and required clause texts.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Stabilize Playwright and RTL Selectors for Test Reliability",
+        "description": "Improve test stability by standardizing selectors and wait strategies across Playwright and React Testing Library (RTL) tests, focusing on the ON flow and gating tests.",
+        "details": "1. Audit existing selectors in Playwright and RTL tests:\n   - Identify inconsistent selector patterns\n   - Document flaky tests and failure patterns\n   - Create inventory of current data-testid usage\n\n2. Standardize component accessibility and test attributes:\n   - Add consistent aria-labels to all interactive elements\n   - Implement data-testid attributes following pattern: `{component-name}-{element-type}-{context}`\n   - Update component library to enforce accessibility standards\n\n3. Refactor test selectors:\n   - Replace brittle text/CSS selectors with data-testid selectors\n   - Implement role-based selectors as fallback (following accessibility best practices)\n   - Create helper functions for common selection patterns\n\n4. Improve wait strategies:\n   - Replace fixed timeouts with waitForSelector and waitForResponse\n   - Implement custom expect matchers for common wait scenarios\n   - Add retry logic for intermittent failures\n\n5. Update CI configuration:\n   - Configure proper timeout settings\n   - Implement test retries for flaky tests\n   - Add detailed logging for test failures\n\n6. Documentation:\n   - Create selector strategy documentation\n   - Update component guidelines to include test attribute requirements\n   - Document common test patterns and best practices",
+        "testStrategy": "1. Local verification:\n   - Run full test suite locally 3+ times to verify consistency\n   - Use Playwright's trace viewer to analyze test execution\n   - Verify tests pass in headless and headed modes\n\n2. CI verification:\n   - Monitor test runs in CI environment for at least 5 consecutive builds\n   - Compare test execution times before and after changes\n   - Verify no new flaky tests are introduced\n\n3. Cross-browser testing:\n   - Verify tests pass consistently across Chrome, Firefox, and Safari\n   - Document any browser-specific workarounds\n\n4. Code review:\n   - Peer review of selector changes\n   - Verify accessibility improvements with automated tools (axe, lighthouse)\n   - Ensure all components follow updated guidelines\n\n5. Documentation validation:\n   - Review documentation with team members\n   - Verify new developers can follow selector patterns\n   - Conduct pair programming session to validate approach",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-08T20:51:49.186Z",
+      "description": "Default tasks context",
+      "updated": "2025-08-08T21:13:42.000Z"
+    }
+  }
+}

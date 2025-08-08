@@ -1,0 +1,61 @@
+# Task ID: 2
+# Title: Stabilize Playwright and RTL Selectors for Test Reliability
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Improve test stability by standardizing selectors and wait strategies across Playwright and React Testing Library (RTL) tests, focusing on the ON flow and gating tests.
+# Details:
+1. Audit existing selectors in Playwright and RTL tests:
+   - Identify inconsistent selector patterns
+   - Document flaky tests and failure patterns
+   - Create inventory of current data-testid usage
+
+2. Standardize component accessibility and test attributes:
+   - Add consistent aria-labels to all interactive elements
+   - Implement data-testid attributes following pattern: `{component-name}-{element-type}-{context}`
+   - Update component library to enforce accessibility standards
+
+3. Refactor test selectors:
+   - Replace brittle text/CSS selectors with data-testid selectors
+   - Implement role-based selectors as fallback (following accessibility best practices)
+   - Create helper functions for common selection patterns
+
+4. Improve wait strategies:
+   - Replace fixed timeouts with waitForSelector and waitForResponse
+   - Implement custom expect matchers for common wait scenarios
+   - Add retry logic for intermittent failures
+
+5. Update CI configuration:
+   - Configure proper timeout settings
+   - Implement test retries for flaky tests
+   - Add detailed logging for test failures
+
+6. Documentation:
+   - Create selector strategy documentation
+   - Update component guidelines to include test attribute requirements
+   - Document common test patterns and best practices
+
+# Test Strategy:
+1. Local verification:
+   - Run full test suite locally 3+ times to verify consistency
+   - Use Playwright's trace viewer to analyze test execution
+   - Verify tests pass in headless and headed modes
+
+2. CI verification:
+   - Monitor test runs in CI environment for at least 5 consecutive builds
+   - Compare test execution times before and after changes
+   - Verify no new flaky tests are introduced
+
+3. Cross-browser testing:
+   - Verify tests pass consistently across Chrome, Firefox, and Safari
+   - Document any browser-specific workarounds
+
+4. Code review:
+   - Peer review of selector changes
+   - Verify accessibility improvements with automated tools (axe, lighthouse)
+   - Ensure all components follow updated guidelines
+
+5. Documentation validation:
+   - Review documentation with team members
+   - Verify new developers can follow selector patterns
+   - Conduct pair programming session to validate approach

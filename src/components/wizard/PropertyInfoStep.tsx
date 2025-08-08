@@ -29,10 +29,10 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="property-type">Property Type *</Label>
-          <Select onValueChange={(value) => handleChange('type', value)} value={data.property.type}>
-            <SelectTrigger className="bg-background">
+      <div className="space-y-2">
+        <Label id="label-property-type" htmlFor="property-type">Property Type *</Label>
+        <Select onValueChange={(value) => handleChange('type', value)} value={data.property.type}>
+          <SelectTrigger id="property-type" data-testid="property-type" aria-labelledby="label-property-type property-type" className="bg-background">
               <SelectValue placeholder="Select property type" />
             </SelectTrigger>
             <SelectContent>
@@ -47,9 +47,9 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="bedrooms">Number of Bedrooms *</Label>
+          <Label id="label-bedrooms" htmlFor="bedrooms">Number of Bedrooms *</Label>
           <Select onValueChange={(value) => handleChange('bedrooms', value)} value={data.property.bedrooms}>
-            <SelectTrigger className="bg-background">
+            <SelectTrigger id="bedrooms" data-testid="bedrooms" aria-labelledby="label-bedrooms bedrooms" className="bg-background">
               <SelectValue placeholder="Select bedrooms" />
             </SelectTrigger>
             <SelectContent>
@@ -66,9 +66,9 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="bathrooms">Number of Bathrooms *</Label>
+          <Label id="label-bathrooms" htmlFor="bathrooms">Number of Bathrooms *</Label>
           <Select onValueChange={(value) => handleChange('bathrooms', value)} value={data.property.bathrooms}>
-            <SelectTrigger className="bg-background">
+            <SelectTrigger id="bathrooms" data-testid="bathrooms" aria-labelledby="label-bathrooms bathrooms" className="bg-background">
               <SelectValue placeholder="Select bathrooms" />
             </SelectTrigger>
             <SelectContent>
@@ -83,9 +83,9 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="furnished">Furnished Status *</Label>
+          <Label id="label-furnished" htmlFor="furnished">Furnished Status *</Label>
           <Select onValueChange={(value) => handleChange('furnished', value)} value={data.property.furnished}>
-            <SelectTrigger className="bg-background">
+            <SelectTrigger id="furnished" data-testid="furnished" aria-labelledby="label-furnished furnished" className="bg-background">
               <SelectValue placeholder="Select furnished status" />
             </SelectTrigger>
             <SelectContent>
@@ -98,9 +98,9 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="parking">Parking Information</Label>
+        <Label id="label-parking" htmlFor="parking">Parking Information</Label>
         <Select onValueChange={(value) => handleChange('parking', value)} value={data.property.parking}>
-          <SelectTrigger className="bg-background">
+          <SelectTrigger id="parking" data-testid="parking" aria-labelledby="label-parking parking" className="bg-background">
             <SelectValue placeholder="Select parking option" />
           </SelectTrigger>
           <SelectContent>
@@ -117,7 +117,7 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
 
       <div className="bg-accent/50 p-4 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          <strong>Property Description:</strong> Accurate property details help ensure the rental agreement 
+          <strong>Property Description:</strong> Accurate property details help ensure the rental agreement
           clearly defines what is being rented and helps prevent disputes later.
         </p>
       </div>

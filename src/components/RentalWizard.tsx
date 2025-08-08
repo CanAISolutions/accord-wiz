@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -9,12 +9,18 @@ import PropertyInfoStep from "./wizard/PropertyInfoStep";
 import RentalTermsStep from "./wizard/RentalTermsStep";
 import LegalClausesStep from "./wizard/LegalClausesStep";
 import PreviewStep from "./wizard/PreviewStep";
+import { ProvinceCode } from "@/lib/canadaRentalRules";
+import JurisdictionStep from "./wizard/JurisdictionStep";
+import { useStepValidity } from "@/lib/hooks/useStepValidity";
 
 interface RentalWizardProps {
   onBack: () => void;
 }
 
 export interface WizardData {
+  jurisdiction?: {
+    provinceCode: ProvinceCode | "";
+  };
   landlord: {
     name: string;
     address: string;
@@ -58,6 +64,7 @@ export interface WizardData {
 const RentalWizard = ({ onBack }: RentalWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [wizardData, setWizardData] = useState<WizardData>({
+    jurisdiction: { provinceCode: "" },
     landlord: { name: "", address: "", phone: "", email: "" },
     tenant: { name: "", phone: "", email: "", emergencyContact: "", emergencyPhone: "" },
     property: { address: "", type: "", bedrooms: "", bathrooms: "", furnished: "", parking: "" },
@@ -66,6 +73,7 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
   });
 
   const steps = [
+    { title: "Jurisdiction", component: JurisdictionStep },
     { title: "Landlord Information", component: LandlordInfoStep },
     { title: "Tenant Information", component: TenantInfoStep },
     { title: "Property Details", component: PropertyInfoStep },
@@ -94,6 +102,7 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
   };
 
   const progress = (currentStep / steps.length) * 100;
+  const { isValid, errors } = useStepValidity(wizardData, currentStep);
   const CurrentStepComponent = steps[currentStep - 1].component;
 
   return (
@@ -101,9 +110,9 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center space-x-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onBack}
             className="flex items-center space-x-2"
           >
@@ -136,26 +145,34 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <CurrentStepComponent 
-                data={wizardData} 
+              <CurrentStepComponent
+                data={wizardData}
                 updateData={updateWizardData}
               />
-              
+
+              {errors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded">
+                  {errors.map((e, i) => (
+                    <div key={`step-err-${i}`}>• {e}</div>
+                  ))}
+                </div>
+              )}
+
               {/* Navigation Buttons */}
               <div className="flex justify-between pt-6 border-t">
-                <Button 
-                  variant="outline" 
-                  onClick={prevStep} 
+                <Button
+                  variant="outline"
+                  onClick={prevStep}
                   disabled={currentStep === 1}
                   className="flex items-center space-x-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Previous</span>
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={nextStep}
-                  disabled={currentStep === steps.length}
+                  disabled={currentStep === steps.length || !isValid}
                   className="bg-gradient-primary hover:opacity-90 transition-opacity flex items-center space-x-2"
                 >
                   <span>{currentStep === steps.length ? "Generate Agreement" : "Next"}</span>

@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, PenLine } from "lucide-react";
 import { WizardData } from "../RentalWizard";
+import { getProvinceRules } from "@/lib/canadaRentalRules";
+import SignaturePad from "@/components/signatures/SignaturePad";
+import { useState } from "react";
+import { buildAgreementPdf } from "@/lib/pdf/buildAgreement";
+import { buildOntarioStandardLeasePdf, getOntarioLeaseDeepLink } from "@/lib/pdf/ontarioStandardLease";
 
 interface PreviewStepProps {
   data: WizardData;
@@ -10,7 +15,10 @@ interface PreviewStepProps {
 }
 
 const PreviewStep = ({ data }: PreviewStepProps) => {
-  const handleDownload = () => {
+  const [landlordSig, setLandlordSig] = useState<string | null>(null);
+  const [tenantSig, setTenantSig] = useState<string | null>(null);
+
+  const handleDownloadTxt = () => {
     // Create a comprehensive rental agreement document
     const agreement = generateRentalAgreement(data);
     const blob = new Blob([agreement], { type: 'text/plain' });
@@ -18,6 +26,23 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     const a = document.createElement('a');
     a.href = url;
     a.download = `Rental_Agreement_${data.tenant.name.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleGeneratePdf = async () => {
+    const now = new Date().toISOString();
+    const bytes = await buildAgreementPdf({ data, signatures: [
+      { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
+      { role: 'tenant', name: data.tenant.name, imageDataUrl: tenantSig || undefined, signedAtIso: now },
+    ]});
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Rental_Agreement_${data.tenant.name.replace(/\s+/g, '_')}.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -80,29 +105,54 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
         </CardHeader>
         <CardContent className="space-y-2">
           <p><strong>Monthly Rent:</strong> ${data.terms.rentAmount}</p>
-          <p><strong>Security Deposit:</strong> ${data.terms.securityDeposit}</p>
+          {data.jurisdiction?.provinceCode === 'ON' ? (
+            <p><strong>Rent Deposit (L.M.R.):</strong> ${(data as any).terms?.rentDeposit || '0'}</p>
+          ) : (
+            <p><strong>Security Deposit:</strong> ${data.terms.securityDeposit}</p>
+          )}
           <p><strong>Lease Period:</strong> {data.terms.leaseStart} to {data.terms.leaseEnd}</p>
           <p><strong>Rent Due:</strong> {data.terms.rentDueDate}</p>
           <p><strong>Late Fee:</strong> ${data.terms.lateFeesAmount} after {data.terms.lateFeesGracePeriod} grace period</p>
         </CardContent>
       </Card>
 
+      {/* Signatures */}
+      <Card className="bg-accent/30">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2"><PenLine className="h-4 w-4"/>Signature Capture</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="text-sm font-medium mb-1">Landlord</div>
+            <SignaturePad onChange={setLandlordSig} />
+          </div>
+          <div>
+            <div className="text-sm font-medium mb-1">Tenant</div>
+            <SignaturePad onChange={setTenantSig} />
+          </div>
+        </CardContent>
+      </Card>
+
       <Separator />
 
       <div className="text-center space-y-4">
-        <Button 
-          onClick={handleDownload}
+        <Button
+          onClick={handleGeneratePdf}
           size="lg"
           className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-legal"
         >
           <Download className="h-5 w-5 mr-2" />
-          Download Rental Agreement
+          Generate PDF
         </Button>
-        
+
+        <div>
+          <Button variant="outline" onClick={handleDownloadTxt}>Download Text Version</Button>
+        </div>
+
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          This agreement includes all standard legal clauses and complies with general rental law requirements. 
-          We recommend having the document reviewed by a local attorney to ensure compliance with your specific 
-          state and local regulations.
+          The Act prevails. This generator provides general legal information only and not legal advice. For Ontario, the Standard Form of Lease is required. {data.jurisdiction?.provinceCode === 'ON' ? (
+            <a className="underline" href={getOntarioLeaseDeepLink()} target="_blank" rel="noreferrer">Open Ontario Standard Lease</a>
+          ) : null}
         </p>
       </div>
     </div>
@@ -111,7 +161,8 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
 
 const generateRentalAgreement = (data: WizardData): string => {
   const currentDate = new Date().toLocaleDateString();
-  
+  const prov = getProvinceRules((data.jurisdiction?.provinceCode as any) || undefined);
+
   return `
 RESIDENTIAL RENTAL AGREEMENT
 
@@ -171,8 +222,8 @@ ${data.clauses.earlyTermination}
 8. RENEWAL TERMS
 ${data.clauses.renewalTerms || 'Terms to be negotiated prior to lease expiration.'}
 
-9. LEGAL COMPLIANCE
-This agreement shall be governed by and construed in accordance with the laws of the state where the property is located. Both parties agree to comply with all applicable federal, state, and local laws and regulations.
+9. JURISDICTIONAL COMPLIANCE
+This agreement is intended for ${prov ? prov.name : 'the applicable jurisdiction in Canada'}. Both parties agree to comply with all applicable provincial/territorial and local residential tenancy laws.
 
 10. SIGNATURES
 By signing below, both parties agree to the terms and conditions outlined in this rental agreement.

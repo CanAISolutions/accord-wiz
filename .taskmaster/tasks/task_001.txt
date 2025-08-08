@@ -1,0 +1,21 @@
+# Task ID: 1
+# Title: Create Vitest skeleton for validation hooks and terms step
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up unit and RTL tests for `useStepValidity` and `RentalTermsStep` focusing on province-aware validation and gating.
+# Details:
+- Add tests: `tests/unit/useStepValidity.test.ts`, expand RTL suite.
+- Ensure selectors match checklist labels.
+- Export JUnit to `test-results/vitest/results.xml`.
+
+# Test Strategy:
+Vitest with jsdom; @testing-library/react for RTL; verify error messages and Next disabled until valid.
+
+# Subtasks:
+## 1. Create Vitest skeleton for useStepValidity [pending]
+### Dependencies: None
+### Description: Add or verify unit test scaffolding for validation logic; ensure edge cases for ON late fee/security deposit and required clause texts.
+### Details:
+
+

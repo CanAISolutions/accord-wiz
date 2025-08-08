@@ -2,6 +2,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WizardData } from "../RentalWizard";
+import { useMemo } from "react";
+import { getProvinceRules } from "@/lib/canadaRentalRules";
 
 interface LegalClausesStepProps {
   data: WizardData;
@@ -12,6 +14,9 @@ const LegalClausesStep = ({ data, updateData }: LegalClausesStepProps) => {
   const handleChange = (field: string, value: string) => {
     updateData('clauses', { [field]: value });
   };
+
+  const province = data.jurisdiction?.provinceCode as any;
+  const rules = useMemo(() => getProvinceRules(province), [province]);
 
   return (
     <div className="space-y-6">
@@ -106,12 +111,43 @@ const LegalClausesStep = ({ data, updateData }: LegalClausesStepProps) => {
         />
       </div>
 
-      <div className="bg-accent/50 p-4 rounded-lg">
+      {/* Mandatory clauses (editable) */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="act-prevails">Mandatory Clause: The Act Prevails *</Label>
+          <Textarea
+            id="act-prevails"
+            value={(data.clauses as any).actPrevailsClause || ""}
+            onChange={(e) => handleChange('actPrevailsClause' as any, e.target.value)}
+            rows={3}
+            className="bg-background"
+            placeholder="If any term conflicts with the applicable residential tenancies law, the Act prevails over this agreement."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="human-rights">Mandatory Clause: Human Rights & Service Animals *</Label>
+          <Textarea
+            id="human-rights"
+            value={(data.clauses as any).humanRightsClause || ""}
+            onChange={(e) => handleChange('humanRightsClause' as any, e.target.value)}
+            rows={3}
+            className="bg-background"
+            placeholder="The landlord and tenant must comply with human rights laws. Service animals are not pets and are permitted as required by law."
+          />
+        </div>
+      </div>
+
+      <div className="bg-accent/50 p-4 rounded-lg space-y-2">
         <p className="text-sm text-muted-foreground">
-          <strong>Legal Compliance:</strong> These clauses must comply with federal, state, and local laws. 
-          Some jurisdictions have specific requirements for pet policies, smoking restrictions, and tenant rights. 
-          Consider consulting with a local attorney for complex situations.
+          <strong>Human Rights & Service Animals:</strong> Rules prohibit discrimination. Service animals are not pets.
         </p>
+        <p className="text-sm text-muted-foreground">
+          <strong>Act Prevails:</strong> If any clause conflicts with the applicable residential tenancies law, the Act prevails.
+        </p>
+        {rules?.petDeposit?.allowed === false && (
+          <p className="text-xs text-muted-foreground">{rules.name}: Separate pet deposits are not permitted. Damage cannot be pre-charged via a pet deposit.</p>
+        )}
       </div>
     </div>
   );
