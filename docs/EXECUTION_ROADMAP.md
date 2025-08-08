@@ -2,10 +2,10 @@
 
 1) Tests green (1d)
 - Stabilize Playwright selectors and waits (done)
-- Verify RTL gating test (updated)
+- Verify RTL gating test (done)
 
 2) Build pipeline (0.25d)
-- Ensure `npm run build` → `dist/` in CI (done)
+- Ensure `npm run build` → `dist/` locally (done) and in CI (pending)
 
 3) Supabase storage + RLS (0.5d)
 - Bucket `agreements` and policies in `supabase/policies.sql` (updated)

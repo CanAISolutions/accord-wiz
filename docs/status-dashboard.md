@@ -19,16 +19,16 @@
 - Supabase: client via env; storage RLS policies file; schema context captured for future DB work
 
 ## In Progress / Remaining for MVP
-- Ensure green local + CI runs and build `dist/`
+- Green local runs (unit + E2E Chromium) and build `dist/` — DONE
 - Render: connect repo, set env vars, build/publish to `dist/`, DNS/TLS verification for `app.canai.so`
 - Supabase storage: confirm path convention `agreements/{auth.uid()}/{agreementId}.pdf` aligns with RLS
 - (Optional now, Phase 2) Upload PDF to Supabase Storage with metadata hash
 - A11y baseline verification; i18n plan note (EN now, FR post-launch)
 
 ## Build & Test Steps (Current)
-- Unit tests: `npm run test:unit` (JUnit at `test-results/vitest/results.xml`)
-- E2E tests: `npm run test:e2e` (JUnit at `test-results/playwright/results.xml`)
-- Build: `npm run build` → produces `dist/`
+- Unit tests: `npm run test:unit` — GREEN (JUnit at `test-results/vitest/results.xml`)
+- E2E tests: `npm run test:e2e` — GREEN on Chromium baseline (JUnit at `test-results/playwright/results.xml`)
+- Build: `npm run build` — SUCCESS (produces `dist/`)
 - CI: `.github/workflows/ci.yml` (artifacts: `test-results/`, `coverage/`, `dist/`)
 
 ## References

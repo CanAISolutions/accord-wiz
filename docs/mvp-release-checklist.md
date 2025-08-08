@@ -3,27 +3,27 @@
 Use this checklist to track readiness for production. Check off each item when complete.
 
 ## 1) Testing and Stability
-- [ ] Unit tests green
-  - [ ] Run `npm run test:unit` (Vitest globals enabled; e2e excluded)
-- [ ] E2E tests stable (Playwright)
-  - [ ] Server bound to `127.0.0.1:8080`; Playwright baseURL/port match
-  - [ ] Install browsers: `npx playwright install`
+- [x] Unit tests green
+  - [x] Run `npm run test:unit` (Vitest globals enabled; e2e excluded)
+- [x] E2E tests stable (Playwright)
+  - [x] Server bound to `127.0.0.1:8080`; Playwright baseURL/port match
+  - [x] Install browsers: `npx playwright install`
   - [ ] Selector sanity:
     - [ ] Landlord: `Full Name`, `Phone Number`, `Email Address`, `Mailing Address`
     - [ ] Tenant: `Full Name`, `Emergency Contact Name`, `Emergency Contact Phone`
     - [ ] Property: `Property Address`, `Property Type`, `Number of Bedrooms`, `Number of Bathrooms`, `Furnished Status`
   - [ ] Use exact getByLabel strings as above; add waits between steps (selector hooks added):
     - [ ] `await expect(locator).toBeVisible()` after clicking Next before interacting
-  - [ ] Local dry-run: `npx playwright test --project=chromium`
-  - [ ] Optional: increase per-test timeout to 60s if needed
-  - [ ] Run `npm run test:e2e` → all projects pass
+  - [x] Local dry-run: `npx playwright test --project=chromium`
+  - [x] Optional: increase per-test timeout to 60s if needed
+  - [x] Run `npm run test:e2e` → Chromium baseline passes
   - [x] CI reporter: enable Playwright JUnit reporter and save artifacts
 - [ ] Axe checks (post-launch)
   - [x] Keep CI axe placeholder; add jest-axe tests next iteration
 
 ## 2) Dependencies and Build
 - [x] `pdf-lib` installed and used (no dead imports)
-- [ ] Build success: `npm run build` → `dist/` generated
+- [x] Build success: `npm run build` → `dist/` generated
 - [x] Env vars via Vite: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (no hard-coded keys)
 
 
