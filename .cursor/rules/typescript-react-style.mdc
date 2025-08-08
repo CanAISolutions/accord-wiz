@@ -1,0 +1,22 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript/React code style and conventions for this repo
+---
+
+- **Naming & Types**
+  - Exported APIs must have explicit types; avoid `any` in public signatures
+  - Use descriptive names; avoid 1–2 character identifiers
+
+- **Control Flow**
+  - Prefer early returns; handle edge cases first
+  - Keep nesting shallow; extract helpers for clarity
+
+- **Formatting**
+  - Match existing style; keep lines readable; avoid reformatting unrelated code
+
+- **Testing Hooks**
+  - Use `@` alias for imports from `src`
+  - In tests, prefer semantic queries; add `data-testid` only when needed
+
+- **Comments**
+  - Explain non-obvious decisions; avoid redundant comments

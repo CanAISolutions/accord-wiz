@@ -1,0 +1,26 @@
+---
+globs: src/lib/pdf/*.ts
+description: PDF generation guidelines (pdf-lib), compliance banner, and signature audit
+---
+
+- **Builder**: [buildAgreement.ts](mdc:src/lib/pdf/buildAgreement.ts)
+  - Include title, jurisdiction line from `getProvinceRules`, parties, property, terms
+  - Ontario: render rent deposit; explicitly state security deposit not permitted
+  - Show compliance banner: "If any term conflicts with law, the Act prevails." and `lastUpdated` when available
+
+- **Signatures & Audit**
+  - Accept `signatures` with role/name and optional image/typed name/timestamp
+  - Compute SHA-256 hex for payload; fallback hash allowed when WebCrypto absent
+
+```typescript
+import { buildAgreementPdf } from '@/lib/pdf/buildAgreement'
+
+const bytes = await buildAgreementPdf({ data, signatures })
+// Persist or download `bytes`
+```
+
+- **Ontario Standard Lease**
+  - Use deep link when official PDF filling is not implemented: see [ontarioStandardLease.ts](mdc:src/lib/pdf/ontarioStandardLease.ts)
+
+- **Testing**
+  - Validate presence of compliance text and jurisdiction-dependent fields per [docs/canada-rules-test-plan.md](mdc:docs/canada-rules-test-plan.md)

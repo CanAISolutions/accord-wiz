@@ -1,0 +1,17 @@
+---
+globs: src/integrations/supabase/*.ts, supabase/**/*.sql
+description: Supabase client setup, environment variables, and storage/RLS references
+---
+
+- **Client**: [client.ts](mdc:src/integrations/supabase/client.ts), types: [types.ts](mdc:src/integrations/supabase/types.ts)
+  - Requires `.env` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see [README.md](mdc:README.md))
+  - Warns if env missing; sessions persisted in `localStorage`
+
+- **Policies & Schema**
+  - Review SQL: [policies.sql](mdc:supabase/policies.sql), [db_rules.sql](mdc:supabase/db_rules.sql), [schema_context.sql](mdc:supabase/schema_context.sql)
+  - Enforce RLS for user-owned resources; bucket naming convention documented in project docs
+
+- **Best Practices**
+  - Never hard-code keys; prefer env-injected variables
+  - Keep `Database` types in sync after schema changes
+  - Add smoke tests for RLS where appropriate in e2e

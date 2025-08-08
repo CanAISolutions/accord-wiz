@@ -1,53 +1,45 @@
 ---
-description: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
-globs: .cursor/rules/*.mdc
 alwaysApply: true
+description: Canonical formatting and authoring rules for all Cursor rules in this repo
 ---
 
-- **Required Rule Structure:**
-  ```markdown
-  ---
-  description: Clear, one-line description of what the rule enforces
-  globs: path/to/files/*.ext, other/path/**/*
-  alwaysApply: boolean
-  ---
+- **Required Rule Structure**
+  - Frontmatter must be present and valid YAML
+  - Use one (and only one) of: `alwaysApply`, `globs`, or a `description`-only rule
+  - Include succinct, actionable guidance with examples and links
 
-  - **Main Points in Bold**
-    - Sub-points with details
-    - Examples and explanations
-  ```
+```md
+---
+alwaysApply: false
+# or: globs: *.ts,src/**/*.tsx
+# or: description: Retrieval hint for this rule when searching
+---
+- **What this rule enforces**
+  - Specific bullets
+  - Examples below
+```
 
-- **File References:**
-  - Use `[filename](mdc:path/to/file)` ([filename](mdc:filename)) to reference files
-  - Example: [prisma.mdc](mdc:.cursor/rules/prisma.mdc) for rule references
-  - Example: [schema.prisma](mdc:prisma/schema.prisma) for code references
+- **File References**
+  - Use `[filename](mdc:path/to/file)` format; paths are relative to repo root
+  - Examples: [README.md](mdc:README.md), [vitest.config.ts](mdc:vitest.config.ts), [playwright.config.ts](mdc:playwright.config.ts)
 
-- **Code Examples:**
-  - Use language-specific code blocks
-  ```typescript
-  // ✅ DO: Show good examples
-  const goodExample = true;
-  
-  // ❌ DON'T: Show anti-patterns
-  const badExample = false;
-  ```
+- **Code Examples**
+  - Use language-tagged fenced blocks and keep examples minimal and correct
+  - Prefer real code from this repo when possible
 
-- **Rule Content Guidelines:**
-  - Start with high-level overview
-  - Include specific, actionable requirements
-  - Show examples of correct implementation
-  - Reference existing code when possible
-  - Keep rules DRY by referencing other rules
+```typescript
+// ✅ DO: Minimal, runnable-style examples
+import { validateTerms } from "@/lib/canadaRentalRules";
 
-- **Rule Maintenance:**
-  - Update rules when new patterns emerge
-  - Add examples from actual codebase
-  - Remove outdated patterns
-  - Cross-reference related rules
+const result = validateTerms("BC" as any, 2000, 1200, 30);
+```
 
-- **Best Practices:**
-  - Use bullet points for clarity
-  - Keep descriptions concise
-  - Include both DO and DON'T examples
-  - Reference actual code over theoretical examples
-  - Use consistent formatting across rules 
+- **Content Guidelines**
+  - Start with an overview, then concrete, testable rules
+  - Cross-reference existing rules to keep things DRY
+  - Prefer repository code references over generic theory
+
+- **Maintenance**
+  - Update rules when patterns change; remove outdated guidance
+  - Reference real files (e.g., tests, configs) to keep rules enforceable
+  - See also: [project-structure.mdc](mdc:.cursor/rules/project-structure.mdc)

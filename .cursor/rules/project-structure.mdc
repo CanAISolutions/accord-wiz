@@ -1,0 +1,33 @@
+---
+alwaysApply: true
+description: Project structure, primary commands, and key entry points
+---
+
+- **Stack**: Vite + React + TypeScript + Tailwind + shadcn/ui; Tests: Vitest/RTL + Playwright; PDF via pdf-lib; Supabase client-side SDK
+- **Top-level**
+  - App HTML: [index.html](mdc:index.html)
+  - Dev/build: `npm run dev`, `npm run build` (Vite)
+  - Tests: `npm run test` (unit), `npm run test:e2e` (e2e), JUnit in `test-results/`
+  - Lint: `npm run lint` using [eslint.config.js](mdc:eslint.config.js)
+- **Configs**
+  - Unit tests: [vitest.config.ts](mdc:vitest.config.ts), setup: [vitest.setup.ts](mdc:vitest.setup.ts)
+  - E2E tests: [playwright.config.ts](mdc:playwright.config.ts)
+  - Tailwind: [tailwind.config.ts](mdc:tailwind.config.ts)
+- **Src layout**
+  - App bootstrap: [src/main.tsx](mdc:src/main.tsx), [src/App.tsx](mdc:src/App.tsx)
+  - Wizard UI: [src/components/wizard](mdc:src/components/wizard)
+  - UI library: [src/components/ui](mdc:src/components/ui)
+  - Domain rules: [src/lib/canadaRentalRules.ts](mdc:src/lib/canadaRentalRules.ts)
+  - PDF: [src/lib/pdf/buildAgreement.ts](mdc:src/lib/pdf/buildAgreement.ts), [src/lib/pdf/ontarioStandardLease.ts](mdc:src/lib/pdf/ontarioStandardLease.ts)
+  - Hooks: [src/lib/hooks/useStepValidity.ts](mdc:src/lib/hooks/useStepValidity.ts)
+  - Supabase: [src/integrations/supabase/client.ts](mdc:src/integrations/supabase/client.ts), [types.ts](mdc:src/integrations/supabase/types.ts)
+- **Docs to consult before changes**
+  - Overview: [README.md](mdc:README.md)
+  - Test plans: [docs/canada-rules-test-plan.md](mdc:docs/canada-rules-test-plan.md)
+  - A11y & i18n: [docs/A11Y_VERIFICATION.md](mdc:docs/A11Y_VERIFICATION.md), [docs/I18N_PLAN.md](mdc:docs/I18N_PLAN.md)
+  - Governance & roadmap: [docs/DIRECTIVE.md](mdc:docs/DIRECTIVE.md)
+
+- **Conventions**
+  - Path alias `@` points to `./src`
+  - Prefer role-based queries in tests; add `data-testid` only when needed
+  - Keep Ontario-specific logic isolated behind domain rules where possible

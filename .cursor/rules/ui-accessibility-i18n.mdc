@@ -1,0 +1,24 @@
+---
+globs: src/components/**/*.{ts,tsx}
+description: UI patterns with shadcn/radix, accessibility requirements, and i18n scaffolding
+---
+
+- **Accessible Forms**
+  - Use `Label` with `htmlFor` paired to control `id`
+  - Provide clear accessible names; prefer role-based selectors in tests
+  - For composite controls (e.g., Radix `Select`), supply `aria-labelledby` and where needed minimal `data-testid`
+
+```tsx
+<Label id="label-province" htmlFor="province">Province or Territory *</Label>
+<SelectTrigger id="province" aria-labelledby="label-province province" />
+```
+
+- **Mandatory Legal Clauses**
+  - Keep editable text areas for “Act Prevails” and “Human Rights/Service Animals”
+  - Reflect jurisdiction notes based on domain rules (see [LegalClausesStep.tsx](mdc:src/components/wizard/LegalClausesStep.tsx))
+
+- **i18n**
+  - Externalize strings progressively; start with `en-CA` (see [docs/I18N_PLAN.md](mdc:docs/I18N_PLAN.md))
+
+- **A11y Verification**
+  - Use the checklist in [docs/A11Y_VERIFICATION.md](mdc:docs/A11Y_VERIFICATION.md) before releases

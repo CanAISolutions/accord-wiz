@@ -1,0 +1,37 @@
+---
+globs: tests/**/*, src/**/*.{ts,tsx}
+description: Testing standards for Vitest/RTL (unit) and Playwright (e2e)
+---
+
+- **Unit (Vitest + RTL)**
+  - Config: [vitest.config.ts](mdc:vitest.config.ts), setup: [vitest.setup.ts](mdc:vitest.setup.ts)
+  - Use semantic queries first; only fall back to `data-testid` for non-semantic elements
+  - Keep tests deterministic; avoid arbitrary sleeps; use `findBy*`/`await` for async UI
+  - Emit JUnit to `test-results/vitest/results.xml`
+
+```typescript
+import { render, screen } from '@testing-library/react'
+import { validateTerms } from '@/lib/canadaRentalRules'
+
+it('ON: prohibits security deposits', () => {
+  const r = validateTerms('ON' as any, 1800, 100, 0)
+  expect(r.errors.some(e => /not permitted/i.test(e))).toBe(true)
+})
+```
+
+- **E2E (Playwright)**
+  - Config: [playwright.config.ts](mdc:playwright.config.ts) with `baseURL: http://localhost:8080`
+  - Start server via built-in `webServer` in config; avoid custom scripts
+  - Prefer role/name locators. When selecting shadcn `Select`, use testids provided in UI
+  - JUnit output at `test-results/playwright/results.xml`
+
+- **Selectors Guidance**
+  - Buttons: `getByRole('button', { name: /next/i })`
+  - Listbox options: `getByRole('option', { name: 'Ontario' })`
+  - Provide `data-testid` in UI only when semantics are insufficient
+
+- **CI Artifacts**
+  - Ensure JUnit XML is produced in `test-results/` for both unit and e2e
+
+- **Cross-reference**
+  - See E2E patterns in [tests/rtl/RentalWizard.gating.test.tsx](mdc:tests/rtl/RentalWizard.gating.test.tsx)

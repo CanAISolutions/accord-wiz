@@ -72,8 +72,10 @@ Use this checklist to track readiness for production. Check off each item when c
   - [x] Playwright browsers install step in CI
   - [x] Artifact retention for `dist/`
   - [x] JUnit outputs saved for unit (Vitest) and E2E (Playwright)
-- [ ] Render Static Site
-  - [ ] Repo connected
+- [x] Render deploy hooks wired in CI
+  - [x] Staging on push to main via `RENDER_DEPLOY_HOOK_STAGING`
+  - [x] Production on tags `v*` via `RENDER_DEPLOY_HOOK_PROD`
+  - [ ] Repo connected in Render dashboard
   - [ ] Build command: `npm ci && npm run build`
   - [ ] Publish dir: `dist`
   - [ ] Env vars set in Render dashboard

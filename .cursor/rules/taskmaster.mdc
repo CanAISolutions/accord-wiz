@@ -1,0 +1,26 @@
+---
+alwaysApply: true
+description: Taskmaster usage in this project — default loop, tags, and high-value commands
+---
+
+- **Default Loop**
+  - `list` → `next` → `show <id>` → `expand <id>` → Implement → `update-subtask` → `set-status` → repeat
+  - Operate in the default `master` context unless a feature/experiment tag is created
+
+- **Core Commands (MCP/CLI)**
+  - List: `get_tasks` / `task-master list`
+  - Next: `next_task` / `task-master next`
+  - Show: `get_task --id=<id>` / `task-master show <id>`
+  - Expand: `expand_task --id=<id>` / `task-master expand --id=<id>`
+  - Update subtask log: `update_subtask --id=<parent.sub>`
+  - Status: `set_task_status --id=<id> --status=done|in-progress|...`
+
+- **Tags (when to introduce)**
+  - Feature branches, experiments, team collab → create a dedicated tag
+  - Use: `add_tag`, `use_tag`, `copy_tag`, `delete_tag` as needed
+
+- **Governance Hooks**
+  - For any new code task/PR: ensure `<feature>-test-plan.md` exists and create a subtask "Create Vitest skeleton for <module>" (see [governance-and-workflow.mdc](mdc:.cursor/rules/governance-and-workflow.mdc))
+
+- **Artifacts**
+  - JUnit output under `test-results/` for both unit and e2e; keep CI consumable

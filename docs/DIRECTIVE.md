@@ -41,6 +41,9 @@ Remaining MVP work:
 - Build: `dist/` generated without errors
 - Supabase storage: bucket, RLS, path naming, DB rules (deposits, currency defaults, SHA-256 checks, province field constraints)
 - CI/CD: Render static site config, domain + TLS, optional Sentry + web-vitals
+  - CI now triggers Render deploys:
+    - main → staging via `RENDER_DEPLOY_HOOK_STAGING`
+    - tags v* → production via `RENDER_DEPLOY_HOOK_PROD`
 - Docs/governance: i18n note, A11y verification, release notes with limitations
 - Release: tag, staging smoke, promote to prod
 

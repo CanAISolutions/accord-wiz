@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+description: Governance and workflow expectations for features/PRs (test plan, docs, version control)
+---
+
+- **Test Plan & Skeleton (Required for new features/PRs)**
+  - Create `<feature>-test-plan.md` with scope, edge cases, and logging notes under `docs/`
+  - Add a Taskmaster subtask named "Create Vitest skeleton for <module>" to ensure baseline tests
+
+- **Docs & Version Control**
+  - Update relevant docs (A11y/i18n/legal/release notes) as part of changes
+  - Propose Git actions after logical units of work:
+    - `git add -A && git commit -m "feat: <summary>\n\n- Tests\n- Docs"`
+
+- **Alignment & Next Steps**
+  - Validate ideas against roadmap (see [docs/DIRECTIVE.md](mdc:docs/DIRECTIVE.md)), and test plans (see [docs/canada-rules-test-plan.md](mdc:docs/canada-rules-test-plan.md))
+  - For uncertainty, capture open questions in `docs/OPEN_QUESTIONS.md` and proceed with sensible defaults

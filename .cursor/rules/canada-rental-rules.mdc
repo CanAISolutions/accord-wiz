@@ -1,0 +1,28 @@
+---
+globs: src/lib/canadaRentalRules.ts, src/components/wizard/**/*
+description: Domain rules for Canadian jurisdictions and how to validate terms
+---
+
+- **Core Types & API** (see [canadaRentalRules.ts](mdc:src/lib/canadaRentalRules.ts))
+  - `ProvinceCode` union for all provinces/territories
+  - `RULES` record with caps/notes; keep `lastUpdated` current where present
+  - `getProvinceRules(code)` and `validateTerms(province, rent, securityDeposit, lateFee)`
+
+```typescript
+import { validateTerms, getProvinceRules } from '@/lib/canadaRentalRules'
+
+const rules = getProvinceRules('BC')
+const result = validateTerms('BC' as any, 2000, 1200, 30)
+// result.errors includes cap violations; warnings include deposit guidance
+```
+
+- **ON-specific UI**
+  - Security deposits prohibited; use rent deposit note instead
+  - In PDFs/UI, hide/disable security deposit for `ON`; show rent-deposit-specific messaging
+
+- **Authoring New Rules**
+  - Add to `RULES` with clear `notes`; cite authoritative sources in [docs/LEGAL_CHANGELOG.md](mdc:docs/LEGAL_CHANGELOG.md)
+  - Write unit tests under `tests/unit/` mirroring examples in [canadaRentalRules.test.ts](mdc:tests/unit/canadaRentalRules.test.ts)
+
+- **Wizard Integration**
+  - Steps should derive constraints from `getProvinceRules` (see [JurisdictionStep.tsx](mdc:src/components/wizard/JurisdictionStep.tsx), [LegalClausesStep.tsx](mdc:src/components/wizard/LegalClausesStep.tsx))
