@@ -14,9 +14,8 @@ import JurisdictionStep from "./wizard/JurisdictionStep";
 import { useStepValidity, getStepValidity } from "@/lib/hooks/useStepValidity";
 import ComplianceChip from "@/components/compliance/ComplianceChip";
 import { useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import JurisdictionStep from "./wizard/JurisdictionStep";
+// (duplicate import removed)
 import { Check } from "lucide-react";
 
 interface RentalWizardProps {
@@ -79,8 +78,6 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
     clauses: { petsAllowed: "", smokingAllowed: "", sublettingAllowed: "", maintenanceResponsibility: "", earlyTermination: "", renewalTerms: "" }
   });
 
-  const { toast } = useToast();
-
   // Load autosave on mount
   useEffect(() => {
     try {
@@ -93,16 +90,15 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Throttled autosave
+  // Throttled autosave (silent)
   useEffect(() => {
     const id = setTimeout(() => {
       try {
         localStorage.setItem("wizardData", JSON.stringify(wizardData));
-        toast({ description: "Saved just now" });
       } catch {}
     }, 800);
     return () => clearTimeout(id);
-  }, [wizardData, toast]);
+  }, [wizardData]);
 
   const steps = [
     { title: "Jurisdiction", component: JurisdictionStep },
