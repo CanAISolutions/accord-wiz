@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -11,7 +11,6 @@ declare global {
 }
 
 const Pay = () => {
-  const [selected, setSelected] = useState<'one'|'annual'|'free'>('one');
 
   const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
   const PRICING_TABLE_ID = import.meta.env.VITE_STRIPE_PRICING_TABLE_ID as string | undefined;
@@ -27,7 +26,7 @@ const Pay = () => {
       return;
     }
     // Load pricing table script if configured
-    if (PUBLISHABLE_KEY && PRICING_TABLE_ID) {
+    if (PRICING_TABLE_ID && PUBLISHABLE_KEY) {
       const src = 'https://js.stripe.com/v3/pricing-table.js';
       if (!document.querySelector(`script[src="${src}"]`)) {
         const s = document.createElement('script');
@@ -43,17 +42,17 @@ const Pay = () => {
           <CardTitle className="text-center">Secure Payment</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!PUBLISHABLE_KEY || !(PRICING_TABLE_ID || PAYMENT_LINK_URL) ? (
+          {(!PRICING_TABLE_ID && !PAYMENT_LINK_URL) ? (
             <>
               <p className="text-sm text-muted-foreground text-center">
-                Stripe is not fully configured. Set VITE_STRIPE_PUBLISHABLE_KEY and either
-                VITE_STRIPE_PRICING_TABLE_ID or VITE_STRIPE_PAYMENT_LINK_URL.
+                Stripe is not fully configured. Set either VITE_STRIPE_PRICING_TABLE_ID (for Pricing Table) or
+                VITE_STRIPE_PAYMENT_LINK_URL (for Payment Link).
               </p>
               <div className="flex justify-center">
                 <Button variant="outline" onClick={() => (location.hash = '#/wizard')}>Skip for now</Button>
               </div>
             </>
-          ) : PRICING_TABLE_ID ? (
+          ) : (PRICING_TABLE_ID && PUBLISHABLE_KEY) ? (
             <div className="flex justify-center">
               <stripe-pricing-table
                 pricing-table-id={PRICING_TABLE_ID}
@@ -63,9 +62,12 @@ const Pay = () => {
           ) : (
             <div className="flex justify-center">
               <Button onClick={() => {
+                const configuredUrl = PAYMENT_LINK_URL!;
+                // If your Payment Link supports overriding success_url, append it; otherwise configure in Stripe UI
+                const successParam = 'success_url=';
                 const successUrl = encodeURIComponent(`${location.origin}/#/pay?success=true`);
-                const url = PAYMENT_LINK_URL?.includes('success_url=') ? PAYMENT_LINK_URL : `${PAYMENT_LINK_URL}?success_url=${successUrl}`;
-                window.location.href = url!;
+                const url = configuredUrl.includes(successParam) ? configuredUrl : `${configuredUrl}${configuredUrl.includes('?') ? '&' : '?'}${successParam}${successUrl}`;
+                window.location.href = url;
               }}>Pay securely</Button>
             </div>
           )}
