@@ -17,7 +17,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <FileText className="h-8 w-8 text-primary" />
@@ -67,7 +67,7 @@ const Index = () => {
             {PROVINCES.map((p) => (
               <button
                 key={p.code}
-                className="rounded border bg-card/70 hover:bg-card transition-colors p-4 text-left"
+                className="rounded border bg-card/70 hover:bg-card transition-all p-4 text-left shadow-card-soft hover:shadow-legal"
                 onClick={() => {
                   try {
                     const raw = localStorage.getItem('wizardData');
