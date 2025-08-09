@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardData } from "../RentalWizard";
 
@@ -18,14 +19,12 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="property-address">Property Address *</Label>
-        <Textarea
-          id="property-address"
+        <AddressAutocomplete
           value={data.property.address}
-          onChange={(e) => handleChange('address', e.target.value)}
-          placeholder="456 Rental Lane, Unit 2B, City, State, ZIP Code"
-          rows={3}
-          className="bg-background"
+          onChange={(val) => handleChange('address', val)}
+          placeholder="Start typing address..."
         />
+        <p className="text-xs text-muted-foreground">Powered by OpenStreetMap/Photon (free). Edit as needed to match the unit and legal civic address.</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
