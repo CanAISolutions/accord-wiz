@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { WizardData } from "../RentalWizard";
 import { getProvinceRules, validateTerms } from "@/lib/canadaRentalRules";
+import { getProvinceTemplate } from "@/lib/pdf/provinceTemplates";
 import { useMemo } from "react";
 import InspectionChecklist from "./InspectionChecklist";
 import RightRulePanel from "@/components/compliance/RightRulePanel";
@@ -32,6 +33,7 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
   }, [data.jurisdiction?.provinceCode, data.terms.rentAmount, data.terms.securityDeposit, data.terms.lateFeesAmount]);
 
   const provinceRules = getProvinceRules(data.jurisdiction?.provinceCode as any);
+  const provinceTemplate = getProvinceTemplate(data.jurisdiction?.provinceCode as any);
   const isOntario = data.jurisdiction?.provinceCode === "ON";
   const isBC = data.jurisdiction?.provinceCode === "BC";
   const isNL = data.jurisdiction?.provinceCode === "NL";
@@ -49,6 +51,16 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
             <div>Security/damage deposits not allowed. {provinceRules.securityDeposit.notes}</div>
           )}
           {provinceRules.lateFees?.notes && <div>Late fees: {provinceRules.lateFees.notes}{provinceRules.lateFees.maxAmountCAD ? ` (cap $${provinceRules.lateFees.maxAmountCAD})` : ''}</div>}
+          {provinceTemplate.sections?.length > 0 && (
+            <div className="mt-2 text-xs">
+              <div className="text-foreground font-medium">This province’s standard terms include:</div>
+              <ul className="list-disc pl-5">
+                {provinceTemplate.sections.slice(0,2).map((s) => (
+                  <li key={s.title}>{s.title}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
       <div className="grid md:grid-cols-3 gap-6">
