@@ -123,6 +123,7 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
   const handleDownloadIcs = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { location.hash = '#/signin'; return; }
+    if (requirePayment()) { location.hash = '#/pay'; return; }
     const dt = (d: string) => d?.replaceAll('-', '') + 'T090000Z';
     const uid = crypto.randomUUID();
     const ics = [
