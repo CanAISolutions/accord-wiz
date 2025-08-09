@@ -45,7 +45,7 @@ const SignIn = () => {
             <>
               <p className="text-sm text-muted-foreground">You are signed in.</p>
               <div className="flex gap-2">
-                <Button className="flex-1" onClick={() => (location.hash = '#/pay')}>Continue to payment</Button>
+                <Button className="flex-1" onClick={() => (location.hash = '#/wizard')}>Continue to wizard</Button>
                 <Button variant="outline" onClick={() => supabase.auth.signOut()}>Sign out</Button>
               </div>
             </>

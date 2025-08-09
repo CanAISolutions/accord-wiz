@@ -10,6 +10,7 @@ import { buildAgreementPdf } from "@/lib/pdf/buildAgreement";
 import { buildOntarioStandardLeasePdf, getOntarioLeaseDeepLink } from "@/lib/pdf/ontarioStandardLease";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PreviewStepProps {
   data: WizardData;
@@ -34,7 +35,21 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     URL.revokeObjectURL(url);
   };
 
+  const requirePayment = () => {
+    const flag = localStorage.getItem('canai.payment.ok');
+    return flag !== 'true';
+  };
+
   const handleGeneratePdf = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      location.hash = '#/signin';
+      return;
+    }
+    if (requirePayment()) {
+      location.hash = '#/pay';
+      return;
+    }
     const now = new Date().toISOString();
     const bytes = await buildAgreementPdf({ data, signatures: [
       { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
@@ -51,7 +66,10 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const handleComposeEmail = () => {
+  const handleComposeEmail = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { location.hash = '#/signin'; return; }
+    if (requirePayment()) { location.hash = '#/pay'; return; }
     const prov = (data.jurisdiction?.provinceCode as any) || '';
     const subject = encodeURIComponent(`Rental Agreement for ${data.property.address || 'Property'}`);
     const lines: string[] = [];
@@ -72,7 +90,10 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
-  const handleDownloadRtf = () => {
+  const handleDownloadRtf = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { location.hash = '#/signin'; return; }
+    if (requirePayment()) { location.hash = '#/pay'; return; }
     const lines: string[] = [];
     lines.push("{\\rtf1\\ansi");
     lines.push(`\\b Residential Rental Agreement\\b0\\line`);
@@ -99,7 +120,9 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const handleDownloadIcs = () => {
+  const handleDownloadIcs = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { location.hash = '#/signin'; return; }
     const dt = (d: string) => d?.replaceAll('-', '') + 'T090000Z';
     const uid = crypto.randomUUID();
     const ics = [

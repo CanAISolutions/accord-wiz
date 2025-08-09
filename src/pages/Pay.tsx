@@ -6,7 +6,8 @@ const Pay = () => {
   const [selected, setSelected] = useState<'one'|'annual'|'free'>('one');
 
   const proceed = () => {
-    // Hash router navigation to avoid full reloads
+    // Mark payment complete (MVP) and continue
+    try { localStorage.setItem('canai.payment.ok', 'true'); } catch {}
     location.hash = '#/wizard';
   };
 
