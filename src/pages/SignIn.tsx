@@ -10,6 +10,22 @@ const SignIn = () => {
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
+    // Handle Supabase hash tokens when using HashRouter (tokens come after a second '#')
+    const rawHash = window.location.hash || '';
+    const tokenIndex = rawHash.indexOf('#access_token=');
+    if (tokenIndex !== -1) {
+      const fragment = rawHash.slice(tokenIndex + 1); // drop leading '#'
+      const params = new URLSearchParams(fragment);
+      const access_token = params.get('access_token') || undefined;
+      const refresh_token = params.get('refresh_token') || undefined;
+      if (access_token && refresh_token) {
+        supabase.auth.setSession({ access_token, refresh_token }).then(() => {
+          // Clean URL back to /#/signin (no tokens)
+          window.history.replaceState({}, '', `${window.location.origin}/#/signin`);
+          supabase.auth.getSession().then(({ data }) => setAuthed(Boolean(data.session)));
+        });
+      }
+    }
     supabase.auth.getSession().then(({ data }) => setAuthed(Boolean(data.session)));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthed(Boolean(session));
