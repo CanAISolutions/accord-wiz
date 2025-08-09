@@ -21,7 +21,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             {/* Placeholder for ComplianceChip on landing (no province yet) */}
             <span className="hidden md:inline-flex text-xs text-muted-foreground">Compliance: —</span>
-            <Button 
+            <Button
               onClick={() => navigate('/signin')}
             className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-legal"
           >
@@ -43,7 +43,7 @@ const Index = () => {
               Create legally compliant rental agreements in minutes with our guided wizard.
               Trusted by thousands of landlords nationwide.
             </p>
-            <Button 
+            <Button
               size="lg"
               onClick={() => navigate('/signin')}
               className="bg-gradient-hero hover:opacity-90 transition-all transform hover:scale-105 shadow-legal text-lg px-8 py-6"

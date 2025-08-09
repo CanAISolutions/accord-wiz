@@ -21,7 +21,9 @@ const SignIn = () => {
 
   const handleMagicLink = async () => {
     if (!email) return;
-    await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/signin' } });
+    // Use hash route so the redirect works on static hosts and apex domains
+    const redirect = `${window.location.origin}/#/signin`;
+    await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
     setSent(true);
   };
 
