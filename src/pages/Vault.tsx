@@ -66,7 +66,7 @@ const Vault = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex items-center gap-2">
-                <Button onClick={() => (window.location.href = '/wizard')}>Open</Button>
+                <Button onClick={() => (location.hash = '#/wizard')}>Open</Button>
                 <Button variant="outline" onClick={() => handleDuplicate(d)}>Duplicate</Button>
                 <Button variant="destructive" onClick={() => handleDelete(d)}>Delete</Button>
                 <span className="text-xs text-muted-foreground ml-auto">Updated {new Date(d.updatedAt).toLocaleString()}</span>

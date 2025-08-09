@@ -7,12 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { PROVINCES, ProvinceCode } from "@/lib/canadaRentalRules";
 
 const Index = () => {
-  const [showWizard, setShowWizard] = useState(false);
   const navigate = useNavigate();
-
-  if (showWizard) {
-    navigate('/wizard');
-  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -26,8 +21,8 @@ const Index = () => {
           <div className="flex items-center gap-3">
             {/* Placeholder for ComplianceChip on landing (no province yet) */}
             <span className="hidden md:inline-flex text-xs text-muted-foreground">Compliance: —</span>
-            <Button
-              onClick={() => (window.location.href = '/signin')}
+            <Button 
+              onClick={() => navigate('/signin')}
             className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-legal"
           >
             Create Agreement
@@ -48,9 +43,9 @@ const Index = () => {
               Create legally compliant rental agreements in minutes with our guided wizard.
               Trusted by thousands of landlords nationwide.
             </p>
-            <Button
+            <Button 
               size="lg"
-              onClick={() => (window.location.href = '/signin')}
+              onClick={() => navigate('/signin')}
               className="bg-gradient-hero hover:opacity-90 transition-all transform hover:scale-105 shadow-legal text-lg px-8 py-6"
             >
               Start Creating Your Agreement
@@ -75,7 +70,7 @@ const Index = () => {
                     const next = { ...prev, jurisdiction: { provinceCode: p.code as ProvinceCode } };
                     localStorage.setItem('wizardData', JSON.stringify(next));
                   } catch {}
-                  window.location.href = '/signin';
+                  navigate('/signin');
                 }}
               >
                 <div className="font-medium">{p.name}</div>

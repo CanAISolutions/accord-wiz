@@ -6,12 +6,8 @@ const Pay = () => {
   const [selected, setSelected] = useState<'one'|'annual'|'free'>('one');
 
   const proceed = () => {
-    if (selected === 'free') {
-      window.location.href = '/wizard';
-    } else {
-      // Placeholder: no Stripe, keep $0 MVP
-      window.location.href = '/wizard';
-    }
+    // Hash router navigation to avoid full reloads
+    location.hash = '#/wizard';
   };
 
   return (
