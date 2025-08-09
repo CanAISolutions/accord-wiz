@@ -18,71 +18,155 @@ export interface BuildPdfOptions {
 export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Array> {
   const { data } = opts;
   const pdf = await PDFDocument.create();
-  const page = pdf.addPage([595, 842]); // A4
+  let page = pdf.addPage([595, 842]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const { width } = page.getSize();
+  const { width, height } = page.getSize();
   const margin = 50;
+  const contentWidth = width - margin * 2;
 
-  const drawText = (text: string, y: number, size = 12) => {
-    page.drawText(text, { x: margin, y, size, font, color: rgb(0, 0, 0) });
+  const formatCurrency = (v?: string) => {
+    const n = Number.parseFloat(String(v || "0"));
+    if (!Number.isFinite(n)) return "$0.00";
+    return `$${n.toFixed(2)}`;
   };
 
-  let y = 800;
-  page.drawText("Residential Rental Agreement (Canada)", { x: margin, y, size: 18, font });
+  let y = height - margin;
+
+  const addPageIfNeeded = (needed: number) => {
+    if (y - needed < margin) {
+      page = pdf.addPage([595, 842]);
+      y = height - margin;
+    }
+  };
+
+  const drawHeading = (text: string) => {
+    addPageIfNeeded(26);
+    page.drawText(text, { x: margin, y, size: 16, font, color: rgb(0, 0, 0) });
+    y -= 22;
+  };
+
+  const wrapAndDraw = (text: string, size = 11, leading = 14) => {
+    if (!text) return;
+    const words = text.split(/\s+/);
+    let line = "";
+    const lines: string[] = [];
+    for (const w of words) {
+      const test = line ? `${line} ${w}` : w;
+      if (font.widthOfTextAtSize(test, size) > contentWidth) {
+        if (line) lines.push(line);
+        line = w;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines.push(line);
+    for (const ln of lines) {
+      addPageIfNeeded(leading);
+      page.drawText(ln, { x: margin, y, size, font, color: rgb(0, 0, 0) });
+      y -= leading;
+    }
+  };
+
+  // Title and jurisdiction
+  page.drawText("Residential Rental Agreement", { x: margin, y, size: 18, font });
   y -= 24;
   const prov = getProvinceRules(data.jurisdiction?.provinceCode || "");
-  drawText(`Jurisdiction: ${prov?.name ?? "N/A"}`, y); y -= 18;
+  wrapAndDraw(`Jurisdiction: ${prov?.name ?? "N/A"}`);
 
   // Parties
-  drawText("Landlord", y, 14); y -= 16;
-  drawText(`Name: ${data.landlord.name}`, y); y -= 14;
-  drawText(`Email: ${data.landlord.email}`, y); y -= 14;
-  drawText(`Phone: ${data.landlord.phone}`, y); y -= 18;
+  drawHeading("1. Parties");
+  wrapAndDraw(`Landlord: ${data.landlord.name} — Email: ${data.landlord.email || "N/A"} — Phone: ${data.landlord.phone || "N/A"}`);
+  wrapAndDraw(`Tenant: ${data.tenant.name} — Email: ${data.tenant.email || "N/A"} — Phone: ${data.tenant.phone || "N/A"}`);
 
-  drawText("Tenant", y, 14); y -= 16;
-  drawText(`Name: ${data.tenant.name}`, y); y -= 14;
-  drawText(`Email: ${data.tenant.email}`, y); y -= 14;
-  drawText(`Phone: ${data.tenant.phone}`, y); y -= 18;
+  // Property
+  drawHeading("2. Premises");
+  wrapAndDraw(`Address: ${data.property.address}`);
+  if (data.property.type) wrapAndDraw(`Type: ${data.property.type}`);
 
-  drawText("Property", y, 14); y -= 16;
-  drawText(`Address: ${data.property.address}`, y); y -= 14;
-  drawText(`Type: ${data.property.type}`, y); y -= 18;
+  // Term & Rent
+  drawHeading("3. Term & Rent");
+  wrapAndDraw(`Lease term: ${data.terms.leaseStart} to ${data.terms.leaseEnd}`);
+  wrapAndDraw(`Rent: ${formatCurrency(data.terms.rentAmount)} per month; due on day ${data.terms.rentDueDate || "N/A"}.`);
 
-  drawText("Terms", y, 14); y -= 16;
-  drawText(`Rent: $${data.terms.rentAmount}/month`, y); y -= 14;
+  // Deposits (province-aware)
+  drawHeading("4. Deposits");
   if (prov?.code === "ON") {
-    drawText(`Rent Deposit (L.M.R.): $${(data.terms as any).rentDeposit || "0"}`, y); y -= 14;
-    drawText(`Security Deposit: Not permitted`, y); y -= 14;
+    wrapAndDraw(`Ontario: Security/damage deposits are not permitted. A rent deposit (last month's rent) may be collected: ${formatCurrency((data.terms as any).rentDeposit)}.`);
   } else {
-    drawText(`Security Deposit: $${data.terms.securityDeposit || "0"}`, y); y -= 14;
-  }
-  drawText(`Lease: ${data.terms.leaseStart} to ${data.terms.leaseEnd}`, y); y -= 14;
-  if (data.terms.lateFeesAmount) {
-    drawText(`Late Fee: $${data.terms.lateFeesAmount}`, y); y -= 14;
+    wrapAndDraw(`Security/Damage deposit: ${formatCurrency(data.terms.securityDeposit)} (subject to ${prov?.name || "provincial"} limits).`);
   }
 
-  y -= 10;
-  page.drawRectangle({ x: margin, y: y - 40, width: width - margin * 2, height: 40, color: rgb(0.95, 0.95, 1) });
-  drawText("Compliance: If any term conflicts with applicable law, the Act prevails.", y - 12, 10);
-  if (prov?.lastUpdated) drawText(`Rules last updated: ${prov.lastUpdated}`, y - 26, 10);
+  // Late fees (province-aware)
+  drawHeading("5. Late Fees");
+  if (prov?.lateFees?.allowed === false) {
+    wrapAndDraw(`${prov.name}: Flat late fees are restricted. No fixed late fee is set in this agreement.`);
+  } else if (data.terms.lateFeesAmount) {
+    wrapAndDraw(`Late fee: ${formatCurrency(data.terms.lateFeesAmount)} after ${data.terms.lateFeesGracePeriod || 0} days.`);
+  } else {
+    wrapAndDraw(`No late fee specified.`);
+  }
+
+  // Policies
+  drawHeading("6. Policies");
+  if (data.clauses.petsAllowed) wrapAndDraw(`Pet policy: ${data.clauses.petsAllowed}`);
+  if (data.clauses.smokingAllowed) wrapAndDraw(`Smoking policy: ${data.clauses.smokingAllowed}`);
+  if (data.clauses.sublettingAllowed) wrapAndDraw(`Subletting: ${data.clauses.sublettingAllowed}`);
+
+  // Maintenance & Repairs
+  drawHeading("7. Maintenance & Repairs");
+  if (data.clauses.maintenanceResponsibility) {
+    wrapAndDraw(`Responsibility: ${data.clauses.maintenanceResponsibility}. Tenant must promptly report issues; landlord to maintain habitability as required by law.`);
+  } else {
+    wrapAndDraw(`Parties agree to comply with applicable maintenance and habitability requirements.`);
+  }
+
+  // Early Termination & Renewal
+  drawHeading("8. Early Termination & Renewal");
+  if (data.clauses.earlyTermination) wrapAndDraw(`Early termination: ${data.clauses.earlyTermination}.`);
+  if (data.clauses.renewalTerms) wrapAndDraw(`Renewal terms: ${data.clauses.renewalTerms}.`);
+
+  // Mandatory clauses
+  drawHeading("9. Mandatory Legal Clauses");
+  const actPrevails = (data.clauses as any).actPrevailsClause ||
+    "If any term conflicts with the applicable residential tenancies law, the Act prevails over this agreement.";
+  const humanRights = (data.clauses as any).humanRightsClause ||
+    "The landlord and tenant must comply with human rights laws. Service animals are not pets and are permitted as required by law.";
+  wrapAndDraw(`Act prevails: ${actPrevails}`);
+  wrapAndDraw(`Human rights & service animals: ${humanRights}`);
+
+  // Province notes / links
+  drawHeading("10. Provincial Notices");
+  if (prov?.code === "ON") {
+    wrapAndDraw("Ontario: For standard lease guidance, refer to the official Standard Form of Lease.");
+  } else if (prov?.code === "QC") {
+    wrapAndDraw("Québec: This agreement must comply with TAL (Tribunal administratif du logement) rules. Refer to official forms where applicable.");
+  } else if (prov) {
+    wrapAndDraw(`${prov.name}: This agreement is intended to align with provincial requirements.`);
+  }
+
+  // Signatures
+  drawHeading("11. Signatures");
+  wrapAndDraw(`Landlord: ${data.landlord.name} ____________________ Date: __________`);
+  wrapAndDraw(`Tenant:   ${data.tenant.name} ____________________ Date: __________`);
+
+  // Compliance footer box
+  addPageIfNeeded(52);
+  page.drawRectangle({ x: margin, y: y - 40, width: contentWidth, height: 40, color: rgb(0.95, 0.95, 1) });
+  page.drawText("Compliance: If any term conflicts with applicable law, the Act prevails.", { x: margin + 6, y: y - 12, size: 10, font });
+  if (prov?.lastUpdated) page.drawText(`Rules last updated: ${prov.lastUpdated}`, { x: margin + 6, y: y - 26, size: 10, font });
   y -= 52;
 
-  // Signature block (simple)
-  drawText("Signatures", y, 14); y -= 18;
-  drawText(`Landlord: ${data.landlord.name} ____________________ Date: __________`, y); y -= 16;
-  drawText(`Tenant:   ${data.tenant.name} ____________________ Date: __________`, y); y -= 16;
-
   // Signature audit metadata block
-  const auditStartY = y - 10;
   const signatures = opts.signatures || [];
   if (signatures.length > 0) {
-    page.drawRectangle({ x: margin, y: auditStartY - 70, width: width - margin * 2, height: 70, color: rgb(0.98, 0.98, 0.98) });
-    drawText("Signature Audit", auditStartY - 12, 10);
-    let lineY = auditStartY - 26;
+    addPageIfNeeded(90);
+    page.drawRectangle({ x: margin, y: y - 70, width: contentWidth, height: 70, color: rgb(0.98, 0.98, 0.98) });
+    page.drawText("Signature Audit", { x: margin + 6, y: y - 12, size: 10, font });
+    let lineY = y - 26;
     for (const sig of signatures) {
       const payload = JSON.stringify({ role: sig.role, name: sig.name, image: sig.imageDataUrl || sig.typed || "", at: sig.signedAtIso || new Date().toISOString(), email: sig.email || "", ip: sig.ip || "" });
       const hash = sig.hash || (await sha256Hex(payload));
-      drawText(`${sig.role}: ${sig.name}  at: ${sig.signedAtIso || "N/A"}  hash: ${hash.slice(0, 16)}…`, lineY, 9);
+      page.drawText(`${sig.role}: ${sig.name}  at: ${sig.signedAtIso || "N/A"}  hash: ${hash.slice(0, 16)}…`, { x: margin + 6, y: lineY, size: 9, font });
       lineY -= 12;
     }
     y = lineY - 8;
