@@ -5,6 +5,8 @@ import { WizardData } from "../RentalWizard";
 import { getProvinceRules, validateTerms } from "@/lib/canadaRentalRules";
 import { useMemo } from "react";
 import InspectionChecklist from "./InspectionChecklist";
+import RightRulePanel from "@/components/compliance/RightRulePanel";
+import ClauseExplainer from "@/components/compliance/ClauseExplainer";
 
 interface RentalTermsStepProps {
   data: WizardData;
@@ -31,6 +33,8 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
 
   const provinceRules = getProvinceRules(data.jurisdiction?.provinceCode as any);
   const isOntario = data.jurisdiction?.provinceCode === "ON";
+  const isBC = data.jurisdiction?.provinceCode === "BC";
+  const isNL = data.jurisdiction?.provinceCode === "NL";
 
   return (
     <div className="space-y-6">
@@ -47,7 +51,7 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
           {provinceRules.lateFees?.notes && <div>Late fees: {provinceRules.lateFees.notes}{provinceRules.lateFees.maxAmountCAD ? ` (cap $${provinceRules.lateFees.maxAmountCAD})` : ''}</div>}
         </div>
       )}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-3 gap-6">
         <div className="space-y-2">
           <Label htmlFor="rent-amount">Monthly Rent Amount *</Label>
           <div className="relative">
@@ -77,9 +81,29 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
                 className="bg-background pl-8"
                 aria-label="Security Deposit"
               />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <ClauseExplainer
+                  title="Security deposit caps"
+                  body="Caps vary by province (e.g., BC ≤ 0.5 months, NL ≤ 0.75 months). Overages are not enforceable."
+                  linkHref="/docs/LEGAL_CHANGELOG.md"
+                  linkLabel="Legal changelog"
+                />
+              </div>
             </div>
+            {(isBC || isNL) && numbers.rent > 0 && (
+              <p className="text-xs text-muted-foreground">Hint: Max ${isBC ? (0.5 * numbers.rent).toFixed(2) : isNL ? (0.75 * numbers.rent).toFixed(2) : ''} based on monthly rent.</p>
+            )}
           </div>
         )}
+
+        {/* Right-side legal panel */}
+        <RightRulePanel
+          provinceCode={data.jurisdiction?.provinceCode as any}
+          rentAmount={numbers.rent}
+          securityDeposit={numbers.deposit}
+          lateFeeAmount={numbers.lateFee}
+          className="md:col-span-1"
+        />
       </div>
 
       {isOntario && (
@@ -144,7 +168,7 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
         <h4 className="font-semibold text-foreground mb-4">Late Fee Terms</h4>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <Label htmlFor="late-fees-amount">Late Fee Amount</Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
@@ -159,6 +183,16 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
                 aria-label="Late Fee Amount"
               />
             </div>
+            {!isOntario && (
+              <div className="absolute right-2 top-7">
+                <ClauseExplainer
+                  title="Late fee guidance"
+                  body="Fees must be reasonable and disclosed; some provinces set caps or disallow flat fees."
+                  linkHref="/docs/LEGAL_CHANGELOG.md"
+                  linkLabel="Legal changelog"
+                />
+              </div>
+            )}
             {isOntario && (
               <p className="text-xs text-muted-foreground">Ontario does not allow flat late fees in leases. Do not set a late fee.</p>
             )}

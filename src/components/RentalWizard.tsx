@@ -11,7 +11,13 @@ import LegalClausesStep from "./wizard/LegalClausesStep";
 import PreviewStep from "./wizard/PreviewStep";
 import { ProvinceCode } from "@/lib/canadaRentalRules";
 import JurisdictionStep from "./wizard/JurisdictionStep";
-import { useStepValidity } from "@/lib/hooks/useStepValidity";
+import { useStepValidity, getStepValidity } from "@/lib/hooks/useStepValidity";
+import ComplianceChip from "@/components/compliance/ComplianceChip";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import JurisdictionStep from "./wizard/JurisdictionStep";
+import { Check } from "lucide-react";
 
 interface RentalWizardProps {
   onBack: () => void;
@@ -63,6 +69,7 @@ export interface WizardData {
 
 const RentalWizard = ({ onBack }: RentalWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showProvinceModal, setShowProvinceModal] = useState(true);
   const [wizardData, setWizardData] = useState<WizardData>({
     jurisdiction: { provinceCode: "" },
     landlord: { name: "", address: "", phone: "", email: "" },
@@ -71,6 +78,31 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
     terms: { rentAmount: "", securityDeposit: "", leaseStart: "", leaseEnd: "", rentDueDate: "", lateFeesAmount: "", lateFeesGracePeriod: "" },
     clauses: { petsAllowed: "", smokingAllowed: "", sublettingAllowed: "", maintenanceResponsibility: "", earlyTermination: "", renewalTerms: "" }
   });
+
+  const { toast } = useToast();
+
+  // Load autosave on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("wizardData");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setWizardData((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Throttled autosave
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem("wizardData", JSON.stringify(wizardData));
+        toast({ description: "Saved just now" });
+      } catch {}
+    }, 800);
+    return () => clearTimeout(id);
+  }, [wizardData, toast]);
 
   const steps = [
     { title: "Jurisdiction", component: JurisdictionStep },
@@ -90,6 +122,8 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
   };
 
   const nextStep = () => {
+    // Hard guard: do not advance if current step is invalid
+    if (!isValid) return;
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -107,6 +141,23 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
+      {/* Province-first modal */}
+      <Dialog open={showProvinceModal && !wizardData.jurisdiction?.provinceCode}>
+        <DialogContent aria-describedby="province-modal-desc">
+          <DialogHeader>
+            <DialogTitle>Select your province or territory</DialogTitle>
+            <DialogDescription id="province-modal-desc">
+              We validate compliance as you go. Choose your jurisdiction to get started.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="pt-2">
+            <JurisdictionStep data={wizardData} updateData={updateWizardData} />
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setShowProvinceModal(false)} disabled={!wizardData.jurisdiction?.provinceCode}>Continue</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center space-x-4">
@@ -125,13 +176,29 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
               Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}
             </p>
           </div>
+          <ComplianceChip provinceCode={wizardData.jurisdiction?.provinceCode} hasErrors={!isValid && errors.length > 0} />
         </div>
       </header>
 
       {/* Progress Bar */}
       <div className="bg-card/30 border-b">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 space-y-3">
           <Progress value={progress} className="w-full" />
+          <div className="hidden md:flex items-center gap-4 overflow-x-auto">
+            {steps.map((s, idx) => {
+              const stepIndex = idx + 1;
+              const status = getStepValidity(wizardData, stepIndex);
+              const done = stepIndex < currentStep && status.isValid;
+              return (
+                <div key={s.title} className="flex items-center gap-2 whitespace-nowrap text-sm">
+                  <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${done ? 'bg-emerald-100 border-emerald-300 text-emerald-800' : 'bg-card border-border text-muted-foreground'}`}>
+                    {done ? <Check className="h-3 w-3" /> : stepIndex}
+                  </span>
+                  <span className={done ? 'text-foreground' : 'text-muted-foreground'}>{s.title}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
