@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { getProvinceRules } from "@/lib/canadaRentalRules";
+import { getProvinceTemplate } from "@/lib/pdf/provinceTemplates";
 
 export interface BuildPdfOptions {
   data: any;
@@ -136,13 +137,12 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
 
   // Province notes / links
   drawHeading("10. Provincial Notices");
-  if (prov?.code === "ON") {
-    wrapAndDraw("Ontario: For standard lease guidance, refer to the official Standard Form of Lease.");
-  } else if (prov?.code === "QC") {
-    wrapAndDraw("Québec: This agreement must comply with TAL (Tribunal administratif du logement) rules. Refer to official forms where applicable.");
-  } else if (prov) {
-    wrapAndDraw(`${prov.name}: This agreement is intended to align with provincial requirements.`);
-  }
+  const tmpl = getProvinceTemplate(prov?.code);
+  tmpl.notes?.forEach((n) => wrapAndDraw(n));
+  tmpl.sections.forEach((section) => {
+    drawHeading(section.title);
+    section.body.forEach((p) => wrapAndDraw(p));
+  });
 
   // Signatures
   drawHeading("11. Signatures");
