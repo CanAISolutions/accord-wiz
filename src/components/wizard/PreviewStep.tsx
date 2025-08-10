@@ -7,6 +7,7 @@ import { getProvinceRules } from "@/lib/canadaRentalRules";
 import SignaturePad from "@/components/signatures/SignaturePad";
 import { useEffect, useState } from "react";
 import { buildAgreementPdf } from "@/lib/pdf/buildAgreement";
+import { finalizeAndGenerate } from "@/lib/finalize";
 import { getOntarioLeaseDeepLink } from "@/lib/pdf/ontarioStandardLease";
 import { recordSignatureAudit } from "@/components/signatures/SignatureAudit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -66,24 +67,24 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     setGenerating(true);
     try {
       const now = new Date().toISOString();
-      const agreementId = crypto.randomUUID();
-      const bytes = await buildAgreementPdf({ data, signatures: [
-        { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
-        { role: 'tenant', name: data.tenant.name, imageDataUrl: tenantSig || undefined, signedAtIso: now },
-      ]});
-      await recordSignatureAudit(agreementId, [
-        { role: 'landlord', name: data.landlord.name, signedAtIso: now },
-        { role: 'tenant', name: data.tenant.name, signedAtIso: now },
-      ]);
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Rental_Agreement_${data.tenant.name.replace(/\s+/g, '_')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const id = await finalizeAndGenerate(
+        data,
+        {
+          paymentStatus: 'free',
+          signatures: [
+            { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
+            { role: 'tenant', name: data.tenant.name, imageDataUrl: tenantSig || undefined, signedAtIso: now },
+          ],
+        }
+      );
+      try {
+        await recordSignatureAudit(id, [
+          { role: 'landlord', name: data.landlord.name, signedAtIso: now },
+          { role: 'tenant', name: data.tenant.name, signedAtIso: now },
+        ]);
+      } catch {}
+      // Open the stable preview route
+      navigate(`/preview/${id}`);
       if (!has('finished')) add('finished');
     } finally {
       setGenerating(false);

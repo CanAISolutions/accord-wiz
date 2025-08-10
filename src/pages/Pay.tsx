@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { finalizeAndGenerate } from '@/lib/finalize';
+import type { WizardData } from '@/components/RentalWizard';
 import StepPay from '@/components/pay/StepPay';
 
 declare global {
@@ -19,6 +21,7 @@ const Pay = () => {
   const PAYMENT_LINK_URL = import.meta.env.VITE_STRIPE_PAYMENT_LINK_URL as string | undefined;
 
   const navigate = useNavigate();
+  const simulate = !Boolean(PUBLISHABLE_KEY);
 
   useEffect(() => {
     // Handle success redirect
@@ -53,8 +56,23 @@ const Pay = () => {
               <p className="text-sm text-muted-foreground text-center">
                 Payments are not configured. Set VITE_STRIPE_PUBLISHABLE_KEY and VITE_STRIPE_CREATE_INTENT_URL to enable live checkout.
               </p>
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-2">
                 <Button variant="outline" onClick={() => navigate('/wizard')}>Back to Wizard</Button>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const raw = localStorage.getItem('wizardData');
+                      const data: WizardData | null = raw ? JSON.parse(raw) : null;
+                      if (!data) { navigate('/wizard'); return; }
+                      const id = await finalizeAndGenerate(data, { paymentStatus: 'simulated_paid' });
+                      navigate(`/preview/${id}`);
+                    } catch {
+                      navigate('/wizard');
+                    }
+                  }}
+                >
+                  Proceed (payments disabled)
+                </Button>
               </div>
             </>
           )}

@@ -10,6 +10,7 @@ import SignIn from "./pages/SignIn";
 import Pay from "./pages/Pay";
 import Vault from "./pages/Vault";
 import { I18nProvider } from "./i18n/I18nProvider";
+import Preview from "./pages/Preview";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/wizard" element={<Wizard />} />
+            <Route path="/preview/:id" element={<Preview />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/pay" element={<Pay />} />
             <Route path="/vault" element={<Vault />} />

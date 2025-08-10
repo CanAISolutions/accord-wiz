@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { finalizeAndGenerate } from "@/lib/finalize";
+import type { WizardData } from "@/components/RentalWizard";
 
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 const createIntentUrl = import.meta.env.VITE_STRIPE_CREATE_INTENT_URL as string | undefined;
@@ -63,6 +65,15 @@ function PayForm() {
           const { data: { session } } = await supabase.auth.getSession();
           await supabase.from('payment_logs').insert({ user_id: session?.user?.id || null, status: 'succeeded' } as any);
           localStorage.setItem('canai.payment.ok', 'true');
+        } catch {}
+        try {
+          const raw = localStorage.getItem('wizardData');
+          const data: WizardData | null = raw ? JSON.parse(raw) : null;
+          if (data) {
+            const id = await finalizeAndGenerate(data, { paymentStatus: 'paid' });
+            navigate(`/preview/${id}`);
+            return;
+          }
         } catch {}
         navigate('/wizard');
       }

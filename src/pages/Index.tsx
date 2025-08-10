@@ -30,6 +30,20 @@ const Index = () => {
           >
             Create Agreement
           </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              try {
+                const keys = Object.keys(localStorage).filter(k => k.startsWith('agreements:'));
+                if (keys.length === 0) return;
+                // naive pick latest by created order of storage (not guaranteed); good enough for quick access
+                const id = keys[keys.length - 1].split(':')[1];
+                navigate(`/preview/${id}`);
+              } catch {}
+            }}
+          >
+            Open Last Preview
+          </Button>
           </div>
         </div>
       </header>
