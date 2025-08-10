@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Download, FileText, PenLine, Loader2 } from "lucide-react";
 import { WizardData } from "../RentalWizard";
 import { getProvinceRules } from "@/lib/canadaRentalRules";
+import { Copy, formatCurrency, formatDateISO, formatDueDay } from "@/lib/pdf/copy";
 import SignaturePad from "@/components/signatures/SignaturePad";
 import { useEffect, useState } from "react";
 import { buildAgreementPdf } from "@/lib/pdf/buildAgreement";
@@ -272,18 +273,18 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
               <TabsTrigger value="legal">Legal PDF View</TabsTrigger>
             </TabsList>
             <TabsContent value="summary" className="space-y-2">
-              <p><strong>Monthly Rent:</strong> ${data.terms.rentAmount}</p>
+              <p><strong>Monthly Rent:</strong> {formatCurrency(data.terms.rentAmount)}</p>
               {data.jurisdiction?.provinceCode === 'ON' ? (
-                <p><strong>Rent Deposit (L.M.R.):</strong> ${(data as any).terms?.rentDeposit || '0'} (Security deposit not permitted)</p>
+                <p><strong>Rent Deposit (L.M.R.):</strong> {formatCurrency((data as any).terms?.rentDeposit || '0')} (Security deposit not permitted)</p>
               ) : (
-                <p><strong>Security Deposit:</strong> ${data.terms.securityDeposit}</p>
+                <p><strong>Security Deposit:</strong> {formatCurrency(data.terms.securityDeposit)}</p>
               )}
-              <p><strong>Lease Period:</strong> {data.terms.leaseStart} to {data.terms.leaseEnd}</p>
-              <p><strong>Rent Due:</strong> {data.terms.rentDueDate}</p>
+              <p><strong>Lease Period:</strong> {formatDateISO(data.terms.leaseStart)} to {formatDateISO(data.terms.leaseEnd)}</p>
+              <p><strong>Rent Due:</strong> {formatDueDay(data.terms.rentDueDate)}</p>
               {data.terms.lateFeesAmount && (
-                <p><strong>Late Fee:</strong> ${data.terms.lateFeesAmount} after {data.terms.lateFeesGracePeriod} grace period</p>
+                <p><strong>Late Amount:</strong> {formatCurrency(data.terms.lateFeesAmount)} after {data.terms.lateFeesGracePeriod} days</p>
               )}
-              <p className="text-xs text-muted-foreground">If any term conflicts with law, the Act prevails. {(() => {
+              <p className="text-xs text-muted-foreground">{Copy.complianceTag} {(() => {
                 const r = getProvinceRules((data.jurisdiction?.provinceCode as any) || undefined);
                 return r?.lastUpdated ? `Rules last updated: ${r.lastUpdated}` : '';
               })()}</p>

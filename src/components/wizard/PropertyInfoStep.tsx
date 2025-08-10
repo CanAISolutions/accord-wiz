@@ -134,6 +134,17 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
           className="bg-background"
         />
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="included-items">Included Items (comma-separated)</Label>
+        <Input
+          id="included-items"
+          value={(data.property as any).includedItems || ""}
+          onChange={(e) => handleChange('includedItems', e.target.value)}
+          placeholder="Fridge, Stove, Dishwasher, Washer, Dryer"
+          className="bg-background"
+        />
+      </div>
     </div>
   );
 };

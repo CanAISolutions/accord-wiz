@@ -13,8 +13,6 @@ import HelpPanel from "@/components/help/HelpPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 
 interface RentalTermsStepProps {
   data: WizardData;
@@ -218,10 +216,10 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
             <SelectValue placeholder="Select due date" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1st">1st of the month</SelectItem>
-            <SelectItem value="5th">5th of the month</SelectItem>
-            <SelectItem value="15th">15th of the month</SelectItem>
-            <SelectItem value="last">Last day of the month</SelectItem>
+                <SelectItem value="1">1st of the month</SelectItem>
+                <SelectItem value="5">5th of the month</SelectItem>
+                <SelectItem value="15">15th of the month</SelectItem>
+                <SelectItem value="31">Last day of the month</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -273,6 +271,33 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
                 <SelectItem value="10">10 days</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t pt-6">
+        <h4 className="font-semibold text-foreground mb-4">Payments & Utilities</h4>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="nsf-fee">NSF Fee (if applicable)</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
+              <Input id="nsf-fee" type="number" value={(data.terms as any).nsfFee || ''} onChange={(e) => handleChange('nsfFee', e.target.value)} placeholder="45" className="bg-background pl-8" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="payment-methods">Accepted Payment Methods</Label>
+            <Input id="payment-methods" value={(data.terms as any).paymentMethods?.join(', ') || ''} onChange={(e) => updateData('terms', { ...(data.terms as any), paymentMethods: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} placeholder="e-transfer, PAD, cheque" className="bg-background" />
+          </div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6 mt-4">
+          <div className="space-y-2">
+            <Label htmlFor="utilities-included">Utilities Included</Label>
+            <Input id="utilities-included" value={(data.terms as any).utilitiesIncluded || ''} onChange={(e) => handleChange('utilitiesIncluded', e.target.value)} placeholder="Water, Heat" className="bg-background" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="utilities-tenant">Utilities Tenant Pays</Label>
+            <Input id="utilities-tenant" value={(data.terms as any).utilitiesTenantPays || ''} onChange={(e) => handleChange('utilitiesTenantPays', e.target.value)} placeholder="Electricity, Internet" className="bg-background" />
           </div>
         </div>
       </div>

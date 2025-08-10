@@ -9,10 +9,10 @@ export interface StepValidity {
 }
 
 const personBaseSchema = z.object({
-  name: z.string().min(1),
-  address: z.string().min(1).optional().or(z.literal("")),
-  phone: z.string().min(1).optional().or(z.literal("")),
-  email: z.string().email().optional().or(z.literal("")),
+  name: z.string().min(1, { message: "Full name is required" }),
+  address: z.string().min(1, { message: "Address is required" }).optional().or(z.literal("")),
+  phone: z.string().min(1, { message: "Phone is required" }).optional().or(z.literal("")),
+  email: z.string().email({ message: "Enter a valid email" }).optional().or(z.literal("")),
 });
 
 const landlordSchema = personBaseSchema.refine((v) => Boolean(v.phone) || Boolean(v.email), {
@@ -21,33 +21,38 @@ const landlordSchema = personBaseSchema.refine((v) => Boolean(v.phone) || Boolea
 
 const tenantSchema = personBaseSchema
   .extend({
-    emergencyContact: z.string().min(1),
-    emergencyPhone: z.string().min(1),
+    emergencyContact: z.string().min(1, { message: "Emergency contact is required" }),
+    emergencyPhone: z.string().min(1, { message: "Emergency phone is required" }),
   })
   .refine((v) => Boolean(v.phone) || Boolean(v.email), {
     message: "Either phone or email is required",
   });
 
 const propertySchema = z.object({
-  address: z.string().min(1),
-  type: z.string().min(1),
-  bedrooms: z.string().min(1),
-  bathrooms: z.string().min(1),
-  furnished: z.string().min(1),
-  parking: z.string().min(1),
+  address: z.string().min(1, { message: "Property address is required" }),
+  type: z.string().min(1, { message: "Property type is required" }),
+  bedrooms: z.string().min(1, { message: "Number of bedrooms is required" }),
+  bathrooms: z.string().min(1, { message: "Number of bathrooms is required" }),
+  furnished: z.string().min(1, { message: "Furnished status is required" }),
+  parking: z.string().min(1, { message: "Parking information is required" }),
   description: z.string().optional().or(z.literal("")),
+  includedItems: z.string().optional().or(z.literal("")),
 });
 
 const baseTermsSchema = z.object({
-  rentAmount: z.string().min(1),
-  leaseStart: z.string().min(1),
-  leaseEnd: z.string().min(1),
-  rentDueDate: z.string().min(1),
+  rentAmount: z.string().min(1, { message: "Monthly rent is required" }),
+  leaseStart: z.string().min(1, { message: "Lease start date is required" }),
+  leaseEnd: z.string().min(1, { message: "Lease end date is required" }),
+  rentDueDate: z.string().min(1, { message: "Rent due day is required" }),
   securityDeposit: z.string().optional().or(z.literal("")),
   rentDeposit: z.string().optional().or(z.literal("")),
   petDeposit: z.string().optional().or(z.literal("")),
   lateFeesAmount: z.string().optional().or(z.literal("")),
   lateFeesGracePeriod: z.string().optional().or(z.literal("")),
+  nsfFee: z.string().optional().or(z.literal("")),
+  paymentMethods: z.array(z.string()).optional(),
+  utilitiesIncluded: z.string().optional().or(z.literal("")),
+  utilitiesTenantPays: z.string().optional().or(z.literal("")),
 });
 
 export function useStepValidity(data: WizardData, currentStep: number): StepValidity {

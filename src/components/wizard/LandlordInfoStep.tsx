@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { useMemo } from "react";
 import { WizardData } from "../RentalWizard";
 
@@ -58,14 +58,13 @@ const LandlordInfoStep = ({ data, updateData }: LandlordInfoStepProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="landlord-address">Mailing Address *</Label>
-        <Textarea
+        <Label id="label-landlord-address" htmlFor="landlord-address">Mailing Address *</Label>
+        <AddressAutocomplete
           id="landlord-address"
+          ariaLabelledby="label-landlord-address landlord-address"
           value={data.landlord.address}
-          onChange={(e) => handleChange('address', e.target.value)}
-          placeholder="123 Main Street, City, State, ZIP Code"
-          rows={3}
-          className="bg-background"
+          onChange={(val) => handleChange('address', val)}
+          placeholder="Start typing the mailing address..."
         />
       </div>
 

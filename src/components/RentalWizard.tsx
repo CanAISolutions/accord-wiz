@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 // (duplicate import removed)
 import { Check } from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/i18n/I18nProvider";
 
 interface RentalWizardProps {
@@ -50,6 +51,7 @@ export interface WizardData {
     furnished: string;
     parking: string;
       description?: string;
+      includedItems?: string;
   };
   terms: {
     rentAmount: string;
@@ -59,6 +61,10 @@ export interface WizardData {
     rentDueDate: string;
     lateFeesAmount: string;
     lateFeesGracePeriod: string;
+    nsfFee?: string;
+    paymentMethods?: string[];
+    utilitiesIncluded?: string;
+    utilitiesTenantPays?: string;
   };
   clauses: {
     petsAllowed: string;
@@ -72,6 +78,7 @@ export interface WizardData {
 
 const RentalWizard = ({ onBack }: RentalWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showErrors, setShowErrors] = useState(false);
   const [showProvinceModal, setShowProvinceModal] = useState(true);
   const isAutomatedEnv = (() => {
     try {
@@ -90,8 +97,8 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
     jurisdiction: { provinceCode: "" },
     landlord: { name: "", address: "", phone: "", email: "" },
     tenant: { name: "", phone: "", email: "", emergencyContact: "", emergencyPhone: "" },
-    property: { address: "", type: "", bedrooms: "", bathrooms: "", furnished: "", parking: "", description: "" },
-    terms: { rentAmount: "", securityDeposit: "", leaseStart: "", leaseEnd: "", rentDueDate: "", lateFeesAmount: "", lateFeesGracePeriod: "" },
+    property: { address: "", type: "", bedrooms: "", bathrooms: "", furnished: "", parking: "", description: "", includedItems: "" },
+    terms: { rentAmount: "", securityDeposit: "", leaseStart: "", leaseEnd: "", rentDueDate: "", lateFeesAmount: "", lateFeesGracePeriod: "", nsfFee: "", paymentMethods: [], utilitiesIncluded: "", utilitiesTenantPays: "" },
     clauses: { petsAllowed: "", smokingAllowed: "", sublettingAllowed: "", maintenanceResponsibility: "", earlyTermination: "", renewalTerms: "" }
   });
 
@@ -166,8 +173,12 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
   }, []);
 
   const nextStep = () => {
-    // Hard guard: do not advance if current step is invalid
-    if (!isValid) return;
+    // Trigger errors once user attempts to proceed
+    if (!isValid) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -238,14 +249,23 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
               <option value="fr">FR</option>
             </select>
             <BadgeDisplay />
-             <button
-               type="button"
-               onClick={() => setShowProvinceModal(true)}
-               className="focus:outline-none"
-               aria-label="Change province"
-             >
-               <ComplianceChip provinceCode={wizardData.jurisdiction?.provinceCode} hasErrors={!isValid && errors.length > 0} />
-             </button>
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <button
+                     type="button"
+                     onClick={() => setShowProvinceModal(true)}
+                     className="focus:outline-none"
+                     aria-label="Change province"
+                   >
+                     <ComplianceChip provinceCode={wizardData.jurisdiction?.provinceCode} hasErrors={!isValid && errors.length > 0} />
+                   </button>
+                 </TooltipTrigger>
+                 <TooltipContent>
+                   Province drives deposit caps, late-fee rules, and legal clauses. Click to change.
+                 </TooltipContent>
+               </Tooltip>
+             </TooltipProvider>
           </div>
         </div>
       </header>
@@ -287,7 +307,7 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
                 updateData={updateWizardData}
               />
 
-              {errors.length > 0 && (
+              {showErrors && errors.length > 0 && (
                 <div role="status" aria-live="assertive" className="bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded">
                   {errors.map((e, i) => (
                     <div key={`step-err-${i}`}>• {e}</div>

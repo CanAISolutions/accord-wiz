@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { getProvinceRules } from "@/lib/canadaRentalRules";
 import { getProvinceTemplate } from "@/lib/pdf/provinceTemplates";
+import { Copy, formatCurrency, formatDateISO, formatDueDay } from "@/lib/pdf/copy";
 
 export interface BuildPdfOptions {
   data: any;
@@ -24,12 +25,6 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
   const { width, height } = page.getSize();
   const margin = 50;
   const contentWidth = width - margin * 2;
-
-  const formatCurrency = (v?: string) => {
-    const n = Number.parseFloat(String(v || "0"));
-    if (!Number.isFinite(n)) return "$0.00";
-    return `$${n.toFixed(2)}`;
-  };
 
   let y = height - margin;
 
@@ -68,26 +63,45 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
     }
   };
 
-  // Title and jurisdiction
-  page.drawText("Residential Rental Agreement", { x: margin, y, size: 18, font });
-  y -= 24;
+  // Title and jurisdiction (simple header band)
+  page.drawRectangle({ x: 0, y: y - 10, width, height: 34, color: rgb(0.96, 0.97, 1) });
+  page.drawText("Residential Tenancy Agreement", { x: margin, y, size: 18, font });
+  y -= 36;
   const prov = getProvinceRules(data.jurisdiction?.provinceCode || "");
   wrapAndDraw(`Jurisdiction: ${prov?.name ?? "N/A"}`);
 
-  // Parties
+  // Parties (key-value lines)
   drawHeading("1. Parties");
-  wrapAndDraw(`Landlord: ${data.landlord.name} — Email: ${data.landlord.email || "N/A"} — Phone: ${data.landlord.phone || "N/A"}`);
-  wrapAndDraw(`Tenant: ${data.tenant.name} — Email: ${data.tenant.email || "N/A"} — Phone: ${data.tenant.phone || "N/A"}`);
+  const parties: Array<string> = [
+    `Landlord: ${data.landlord.name}`,
+    `  Address: ${data.landlord.address || "N/A"}`,
+    `  Phone: ${data.landlord.phone || "N/A"}  Email: ${data.landlord.email || "N/A"}`,
+    `Tenant: ${data.tenant.name}`,
+    `  Phone: ${data.tenant.phone || "N/A"}  Email: ${data.tenant.email || "N/A"}`,
+  ];
+  parties.forEach((ln) => wrapAndDraw(ln));
 
-  // Property
+  // Property (key-value lines)
   drawHeading("2. Premises");
-  wrapAndDraw(`Address: ${data.property.address}`);
-  if (data.property.type) wrapAndDraw(`Type: ${data.property.type}`);
+  const premises: Array<string> = [
+    `Address: ${data.property.address}`,
+    data.property.type ? `Type: ${data.property.type}` : "",
+    data.property.bedrooms ? `Bedrooms: ${data.property.bedrooms}` : "",
+    data.property.bathrooms ? `Bathrooms: ${data.property.bathrooms}` : "",
+    data.property.furnished ? `Furnished: ${data.property.furnished}` : "",
+    data.property.parking ? `Parking: ${data.property.parking}` : "",
+    (data.property as any)?.includedItems ? `Included items: ${(data.property as any).includedItems}` : "",
+  ].filter(Boolean) as string[];
+  premises.forEach((ln) => wrapAndDraw(ln));
 
-  // Term & Rent
+  // Term & Rent (key-value lines)
   drawHeading("3. Term & Rent");
-  wrapAndDraw(`Lease term: ${data.terms.leaseStart} to ${data.terms.leaseEnd}`);
-  wrapAndDraw(`Rent: ${formatCurrency(data.terms.rentAmount)} per month; due on day ${data.terms.rentDueDate || "N/A"}.`);
+  const termLines: Array<string> = [
+    `Lease period: ${formatDateISO(data.terms.leaseStart)} to ${formatDateISO(data.terms.leaseEnd)}`,
+    `Monthly rent: ${formatCurrency(data.terms.rentAmount)}`,
+    `Rent due: ${formatDueDay(data.terms.rentDueDate)} each month`,
+  ];
+  termLines.forEach((ln) => wrapAndDraw(ln));
 
   // Deposits (province-aware)
   drawHeading("4. Deposits");
@@ -102,7 +116,7 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
   if (prov?.lateFees?.allowed === false) {
     wrapAndDraw(`${prov.name}: Flat late fees are restricted. No fixed late fee is set in this agreement.`);
   } else if (data.terms.lateFeesAmount) {
-    wrapAndDraw(`Late fee: ${formatCurrency(data.terms.lateFeesAmount)} after ${data.terms.lateFeesGracePeriod || 0} days.`);
+    wrapAndDraw(`Late amount: ${formatCurrency(data.terms.lateFeesAmount)} after ${data.terms.lateFeesGracePeriod || 0} days.`);
   } else {
     wrapAndDraw(`No late fee specified.`);
   }
@@ -113,8 +127,17 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
   if (data.clauses.smokingAllowed) wrapAndDraw(`Smoking policy: ${data.clauses.smokingAllowed}`);
   if (data.clauses.sublettingAllowed) wrapAndDraw(`Subletting: ${data.clauses.sublettingAllowed}`);
 
+  // Utilities & Services
+  drawHeading("7. Utilities & Services");
+  const ui = (data.terms as any)?.utilitiesIncluded;
+  const ut = (data.terms as any)?.utilitiesTenantPays;
+  if (ui || ut) {
+    if (ui) wrapAndDraw(`Included: ${ui}.`);
+    if (ut) wrapAndDraw(`Tenant pays: ${ut}.`);
+  }
+
   // Maintenance & Repairs
-  drawHeading("7. Maintenance & Repairs");
+  drawHeading("8. Maintenance & Repairs");
   if (data.clauses.maintenanceResponsibility) {
     wrapAndDraw(`Responsibility: ${data.clauses.maintenanceResponsibility}. Tenant must promptly report issues; landlord to maintain habitability as required by law.`);
   } else {
@@ -122,12 +145,12 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
   }
 
   // Early Termination & Renewal
-  drawHeading("8. Early Termination & Renewal");
+  drawHeading("9. Early Termination & Renewal");
   if (data.clauses.earlyTermination) wrapAndDraw(`Early termination: ${data.clauses.earlyTermination}.`);
   if (data.clauses.renewalTerms) wrapAndDraw(`Renewal terms: ${data.clauses.renewalTerms}.`);
 
   // Mandatory clauses
-  drawHeading("9. Mandatory Legal Clauses");
+  drawHeading("10. Mandatory Legal Clauses");
   const actPrevails = (data.clauses as any).actPrevailsClause ||
     "If any term conflicts with the applicable residential tenancies law, the Act prevails over this agreement.";
   const humanRights = (data.clauses as any).humanRightsClause ||
@@ -136,7 +159,7 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
   wrapAndDraw(`Human rights & service animals: ${humanRights}`);
 
   // Province notes / links
-  drawHeading("10. Provincial Notices");
+  drawHeading("11. Provincial Notices");
   const tmpl = getProvinceTemplate(prov?.code);
   tmpl.notes?.forEach((n) => wrapAndDraw(n));
   tmpl.sections.forEach((section) => {
@@ -144,17 +167,29 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
     section.body.forEach((p) => wrapAndDraw(p));
   });
 
+  // Plain‑Language Summary
+  drawHeading("Plain‑Language Summary");
+  wrapAndDraw(`This lease covers ${data.property.address}. Rent is ${formatCurrency(data.terms.rentAmount)} due on the ${formatDueDay(data.terms.rentDueDate)} each month.`);
+  if (prov?.code === "ON") wrapAndDraw(`Ontario: A rent deposit may be collected; security/damage deposits are not allowed.`);
+  if ((data.terms as any)?.paymentMethods?.length) wrapAndDraw(`Accepted payment methods: ${(data.terms as any).paymentMethods.join(', ')}.`);
+  if (ui || ut) wrapAndDraw(`Utilities — Included: ${ui || '—'}; Tenant pays: ${ut || '—'}.`);
+
   // Signatures
-  drawHeading("11. Signatures");
+  drawHeading("12. Signatures");
   wrapAndDraw(`Landlord: ${data.landlord.name} ____________________ Date: __________`);
   wrapAndDraw(`Tenant:   ${data.tenant.name} ____________________ Date: __________`);
 
   // Compliance footer box
   addPageIfNeeded(52);
   page.drawRectangle({ x: margin, y: y - 40, width: contentWidth, height: 40, color: rgb(0.95, 0.95, 1) });
-  page.drawText("Compliance: If any term conflicts with applicable law, the Act prevails.", { x: margin + 6, y: y - 12, size: 10, font });
+  page.drawText(`Compliance: ${Copy.complianceTag}`, { x: margin + 6, y: y - 12, size: 10, font });
   if (prov?.lastUpdated) page.drawText(`Rules last updated: ${prov.lastUpdated}`, { x: margin + 6, y: y - 26, size: 10, font });
   y -= 52;
+
+  // Optional QR-like local verification (text-only placeholder to avoid deps)
+  const verifyHint = `Verify: canai.so/#/preview (hash on Signature Audit)`;
+  page.drawText(verifyHint, { x: margin, y: y - 12, size: 9, font, color: rgb(0.4,0.4,0.4) });
+  y -= 18;
 
   // Signature audit metadata block
   const signatures = opts.signatures || [];
@@ -170,6 +205,16 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
       lineY -= 12;
     }
     y = lineY - 8;
+  }
+
+  // Page numbers
+  const pages = pdf.getPages();
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    const size = p.getSize();
+    const footer = `Page ${i + 1} of ${pages.length}`;
+    const tw = font.widthOfTextAtSize(footer, 9);
+    p.drawText(footer, { x: size.width - margin - tw, y: 20, size: 9, font, color: rgb(0.4, 0.4, 0.4) });
   }
 
   return await pdf.save();

@@ -47,7 +47,7 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
       try {
         if (cacheRef.current.has(query)) {
           setResults(cacheRef.current.get(query) || []);
-          setOpen(true);
+          setOpen((cacheRef.current.get(query) || []).length > 0);
           return;
         }
         if (abortRef.current) abortRef.current.abort();
@@ -55,12 +55,40 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
         const proxy = (import.meta as any).env?.VITE_PHOTON_PROXY_URL as string | undefined;
         const base = proxy || 'https://photon.komoot.io/api/';
         const url = `${base}?q=${encodeURIComponent(query)}&lang=en&limit=5&countrycode=ca`;
-        const res = await fetch(url, { headers: { "Accept": "application/json" }, signal: abortRef.current.signal });
-        const data = await res.json();
-        const feats = (data?.features || []).slice(0, 5);
+        let feats: PhotonFeature[] = [];
+        const fallbackToNominatim = async () => {
+          const nomProxy = (import.meta as any).env?.VITE_NOMINATIM_PROXY_URL as string | undefined;
+          const nomBase = nomProxy || 'https://nominatim.openstreetmap.org/search';
+          const nomUrl = `${nomBase}?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`;
+          const res2 = await fetch(nomUrl, { headers: { "Accept": "application/json" }, signal: abortRef.current.signal });
+          if (!res2.ok) throw new Error('nominatim_failed');
+          const data2 = await res2.json();
+          feats = (Array.isArray(data2) ? data2 : []).map((n: any) => ({ properties: {
+            name: n.display_name,
+            street: n.address?.road,
+            housenumber: n.address?.house_number,
+            city: n.address?.city || n.address?.town || n.address?.village,
+            postcode: n.address?.postcode,
+            state: n.address?.state,
+            country: n.address?.country
+          }}));
+        };
+        try {
+          const res = await fetch(url, { headers: { "Accept": "application/json" }, signal: abortRef.current.signal });
+          if (!res.ok) throw new Error('photon_failed');
+          const data = await res.json();
+          feats = (data?.features || []).slice(0, 5);
+          // If Photon returned nothing, try fallback as well
+          if (!feats || feats.length === 0) {
+            await fallbackToNominatim();
+          }
+        } catch {
+          // Fallback to Nominatim if Photon fails
+          try { await fallbackToNominatim(); } catch {}
+        }
         cacheRef.current.set(query, feats);
         setResults(feats);
-        setOpen(true);
+        setOpen(feats.length > 0);
       } catch (err) {
         if ((err as any)?.name === 'AbortError') return;
         setResults([]);
