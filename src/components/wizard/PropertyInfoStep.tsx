@@ -122,6 +122,18 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
           clearly defines what is being rented and helps prevent disputes later.
         </p>
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="property-description">Property Description</Label>
+        <Textarea
+          id="property-description"
+          value={(data.property as any).description || ""}
+          onChange={(e) => handleChange('description', e.target.value)}
+          placeholder="Unit details, included appliances, parking stall numbers, storage, special features..."
+          rows={4}
+          className="bg-background"
+        />
+      </div>
     </div>
   );
 };

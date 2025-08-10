@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WizardData } from "../RentalWizard";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { getProvinceRules } from "@/lib/canadaRentalRules";
 
 interface LegalClausesStepProps {
@@ -19,7 +19,9 @@ const LegalClausesStep = ({ data, updateData }: LegalClausesStepProps) => {
   const rules = useMemo(() => getProvinceRules(province), [province]);
 
   // Prefill mandatory editable clauses with safe defaults (once, if empty)
+  const hasInjectedRef = useRef(false);
   useEffect(() => {
+    if (hasInjectedRef.current) return;
     const actDefault = "If any term conflicts with the applicable residential tenancies law, the Act prevails over this agreement.";
     const hrDefault = "The landlord and tenant must comply with human rights laws. Service animals are not pets and are permitted as required by law.";
     const hasAct = Boolean((data.clauses as any).actPrevailsClause);
@@ -30,6 +32,7 @@ const LegalClausesStep = ({ data, updateData }: LegalClausesStepProps) => {
         ...(hasHr ? {} : { humanRightsClause: hrDefault })
       });
     }
+    hasInjectedRef.current = true;
     // Only run when province changes or on first mount; avoids overwriting user edits
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [province]);

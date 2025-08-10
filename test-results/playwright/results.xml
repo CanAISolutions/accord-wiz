@@ -1,6 +1,230 @@
-<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="11.244734">
-<testsuite name="on-flow.spec.ts" timestamp="2025-08-09T22:16:40.202Z" hostname="chromium" tests="1" failures="0" skipped="0" time="9.159" errors="0">
-<testcase name="Ontario flow hides security deposit and disables late fee" classname="on-flow.spec.ts" time="9.159">
+<testsuites id="" name="" tests="4" failures="4" skipped="0" errors="0" time="21.733521">
+<testsuite name="flow-bc.spec.ts" timestamp="2025-08-10T15:13:42.695Z" hostname="chromium-prod" tests="1" failures="1" skipped="0" time="7.713" errors="0">
+<testcase name="BC deposit caps and hints" classname="flow-bc.spec.ts" time="7.713">
+<failure message="flow-bc.spec.ts:4:1 BC deposit caps and hints" type="FAILURE">
+<![CDATA[  [chromium-prod] › flow-bc.spec.ts:4:1 › BC deposit caps and hints ────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\flow-bc.spec.ts:5:9
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\flow-bc.spec.ts:5:9
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\flow-bc-BC-deposit-caps-and-hints-chromium-prod-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\flow-bc-BC-deposit-caps-and-hints-chromium-prod-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\flow-bc-BC-deposit-caps-and-hints-chromium-prod-retry1\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="flow-qc.spec.ts" timestamp="2025-08-10T15:13:42.695Z" hostname="chromium-prod" tests="1" failures="1" skipped="0" time="7.892" errors="0">
+<testcase name="Quebec TAL banner and disabled Generate" classname="flow-qc.spec.ts" time="7.892">
+<failure message="flow-qc.spec.ts:4:1 Quebec TAL banner and disabled Generate" type="FAILURE">
+<![CDATA[  [chromium-prod] › flow-qc.spec.ts:4:1 › Quebec TAL banner and disabled Generate ──────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\flow-qc.spec.ts:5:9
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\flow-qc.spec.ts:5:9
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\flow-qc-Quebec-TAL-banner-and-disabled-Generate-chromium-prod-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\flow-qc-Quebec-TAL-banner-and-disabled-Generate-chromium-prod-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\flow-qc-Quebec-TAL-banner-and-disabled-Generate-chromium-prod-retry1\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="on-flow.spec.ts" timestamp="2025-08-10T15:13:42.695Z" hostname="chromium-prod" tests="1" failures="1" skipped="0" time="7.864" errors="0">
+<testcase name="Ontario flow hides security deposit and disables late fee" classname="on-flow.spec.ts" time="7.864">
+<failure message="on-flow.spec.ts:6:1 Ontario flow hides security deposit and disables late fee" type="FAILURE">
+<![CDATA[  [chromium-prod] › on-flow.spec.ts:6:1 › Ontario flow hides security deposit and disables late fee 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\on-flow.spec.ts:7:9
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\on-flow.spec.ts:7:9
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\on-flow-Ontario-flow-hides-4101d-posit-and-disables-late-fee-chromium-prod-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\on-flow-Ontario-flow-hides-4101d-posit-and-disables-late-fee-chromium-prod-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\on-flow-Ontario-flow-hides-4101d-posit-and-disables-late-fee-chromium-prod-retry1\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="payments-gating.spec.ts" timestamp="2025-08-10T15:13:42.695Z" hostname="chromium-prod" tests="1" failures="1" skipped="0" time="7.719" errors="0">
+<testcase name="Payments gating behavior › Stripe disabled: Generate PDF enabled and works" classname="payments-gating.spec.ts" time="7.719">
+<failure message="payments-gating.spec.ts:5:3 Stripe disabled: Generate PDF enabled and works" type="FAILURE">
+<![CDATA[  [chromium-prod] › payments-gating.spec.ts:5:3 › Payments gating behavior › Stripe disabled: Generate PDF enabled and works 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\payments-gating.spec.ts:6:11
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4173/
+    Call log:
+      - navigating to "http://localhost:4173/", waiting until "load"
+
+
+       at _helpers.ts:4
+
+      2 |
+      3 | export async function goToWizard(page: Page) {
+    > 4 |   await page.goto('/');
+        |              ^
+      5 |   await page.waitForLoadState('domcontentloaded');
+      6 |   const cta = page.getByRole('button', { name: /create agreement|start creating|get started|create|start/i }).first();
+      7 |   try {
+        at goToWizard (C:\rentalagreement-ai\tests\e2e\_helpers.ts:4:14)
+        at C:\rentalagreement-ai\tests\e2e\payments-gating.spec.ts:6:11
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\payments-gating-Payments-g-fe140-erate-PDF-enabled-and-works-chromium-prod-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\payments-gating-Payments-g-fe140-erate-PDF-enabled-and-works-chromium-prod-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\payments-gating-Payments-g-fe140-erate-PDF-enabled-and-works-chromium-prod-retry1\trace.zip]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
 </testsuites>

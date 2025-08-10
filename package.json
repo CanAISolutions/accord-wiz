@@ -8,10 +8,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "vitest run",
     "test:unit": "vitest",
-    "test:e2e": "playwright test --config=playwright.config.ts"
+    "test:e2e": "playwright test --config=playwright.config.ts",
+    "test:e2e:prod": "npm run build && playwright test --project=chromium-prod"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

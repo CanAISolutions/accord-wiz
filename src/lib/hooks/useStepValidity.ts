@@ -35,6 +35,7 @@ const propertySchema = z.object({
   bathrooms: z.string().min(1),
   furnished: z.string().min(1),
   parking: z.string().min(1),
+  description: z.string().optional().or(z.literal("")),
 });
 
 const baseTermsSchema = z.object({

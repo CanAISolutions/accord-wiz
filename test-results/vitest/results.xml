@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="15" failures="0" errors="0" time="24.068">
-    <testsuite name="tests/rtl/RentalWizard.gating.test.tsx" timestamp="2025-08-10T14:49:33.025Z" hostname="DESKTOP-BGMEO6L" tests="2" failures="0" errors="0" skipped="0" time="5.6918744">
-        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; province-first gating: selecting province enables Next" time="0.9309309">
+<testsuites name="vitest tests" tests="15" failures="0" errors="0" time="26.736">
+    <testsuite name="tests/rtl/RentalWizard.gating.test.tsx" timestamp="2025-08-10T15:37:18.799Z" hostname="DESKTOP-BGMEO6L" tests="2" failures="0" errors="0" skipped="0" time="7.0377976">
+        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; province-first gating: selecting province enables Next" time="1.9506657">
         </testcase>
-        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; requires mandatory clauses before Next on clauses step" time="4.757727">
-        </testcase>
-    </testsuite>
-    <testsuite name="tests/rtl/theme-and-achievements.test.tsx" timestamp="2025-08-10T14:49:33.026Z" hostname="DESKTOP-BGMEO6L" tests="2" failures="0" errors="0" skipped="0" time="1.1599054">
-        <testcase classname="tests/rtl/theme-and-achievements.test.tsx" name="Theme &amp; Achievements &gt; persists theme toggle" time="0.8109647">
-        </testcase>
-        <testcase classname="tests/rtl/theme-and-achievements.test.tsx" name="Theme &amp; Achievements &gt; unlocks jurisdiction achievement after selecting province" time="0.3452932">
+        <testcase classname="tests/rtl/RentalWizard.gating.test.tsx" name="RentalWizard gating &gt; requires mandatory clauses before Next on clauses step" time="5.0823431">
         </testcase>
     </testsuite>
-    <testsuite name="tests/unit/canadaRentalRules.all-provinces.test.ts" timestamp="2025-08-10T14:49:33.027Z" hostname="DESKTOP-BGMEO6L" tests="4" failures="0" errors="0" skipped="0" time="0.0175951">
-        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; ON prohibits security deposit and late fee" time="0.0075328">
+    <testsuite name="tests/rtl/theme-and-achievements.test.tsx" timestamp="2025-08-10T15:37:18.813Z" hostname="DESKTOP-BGMEO6L" tests="2" failures="0" errors="0" skipped="0" time="2.1471309">
+        <testcase classname="tests/rtl/theme-and-achievements.test.tsx" name="Theme &amp; Achievements &gt; persists theme toggle" time="1.5851076">
         </testcase>
-        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; BC caps late fee and security to 0.5 months" time="0.0014006">
-        </testcase>
-        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; AB allows up to 1 month security without error" time="0.0008039">
-        </testcase>
-        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; All provinces defined with names" time="0.0020438">
+        <testcase classname="tests/rtl/theme-and-achievements.test.tsx" name="Theme &amp; Achievements &gt; unlocks jurisdiction achievement after selecting province" time="0.556522">
         </testcase>
     </testsuite>
-    <testsuite name="tests/unit/canadaRentalRules.test.ts" timestamp="2025-08-10T14:49:33.029Z" hostname="DESKTOP-BGMEO6L" tests="3" failures="0" errors="0" skipped="0" time="0.0078354">
-        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; BC: caps security at half month and late fee at 25" time="0.0035771">
+    <testsuite name="tests/unit/canadaRentalRules.all-provinces.test.ts" timestamp="2025-08-10T15:37:18.816Z" hostname="DESKTOP-BGMEO6L" tests="4" failures="0" errors="0" skipped="0" time="0.0179096">
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; ON prohibits security deposit and late fee" time="0.0081535">
         </testcase>
-        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; ON: blocks security deposit, allows rent deposit warning" time="0.0008049">
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; BC caps late fee and security to 0.5 months" time="0.0016018">
         </testcase>
-        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; AB: security up to one month; no error within limit" time="0.0005099">
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; AB allows up to 1 month security without error" time="0.0008486">
+        </testcase>
+        <testcase classname="tests/unit/canadaRentalRules.all-provinces.test.ts" name="validateTerms across provinces &gt; All provinces defined with names" time="0.0021627">
         </testcase>
     </testsuite>
-    <testsuite name="tests/unit/useStepValidity.test.ts" timestamp="2025-08-10T14:49:33.030Z" hostname="DESKTOP-BGMEO6L" tests="4" failures="0" errors="0" skipped="0" time="0.0213479">
-        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity/getStepValidity &gt; blocks step 1 without province" time="0.004886">
+    <testsuite name="tests/unit/canadaRentalRules.test.ts" timestamp="2025-08-10T15:37:18.828Z" hostname="DESKTOP-BGMEO6L" tests="3" failures="0" errors="0" skipped="0" time="0.0111327">
+        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; BC: caps security at half month and late fee at 25" time="0.004327">
         </testcase>
-        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity/getStepValidity &gt; requires mandatory clauses on step 6" time="0.0017148">
+        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; ON: blocks security deposit, allows rent deposit warning" time="0.001199">
         </testcase>
-        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity &gt; step 1 invalid without province" time="0.0013827">
+        <testcase classname="tests/unit/canadaRentalRules.test.ts" name="canadaRentalRules.validateTerms &gt; AB: security up to one month; no error within limit" time="0.0021379">
         </testcase>
-        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity &gt; step 5 enforces ON late fee/security deposit prohibitions" time="0.0065588">
+    </testsuite>
+    <testsuite name="tests/unit/useStepValidity.test.ts" timestamp="2025-08-10T15:37:18.832Z" hostname="DESKTOP-BGMEO6L" tests="4" failures="0" errors="0" skipped="0" time="0.0215543">
+        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity/getStepValidity &gt; blocks step 1 without province" time="0.0047607">
+        </testcase>
+        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity/getStepValidity &gt; requires mandatory clauses on step 6" time="0.0033567">
+        </testcase>
+        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity &gt; step 1 invalid without province" time="0.0010879">
+        </testcase>
+        <testcase classname="tests/unit/useStepValidity.test.ts" name="useStepValidity &gt; step 5 enforces ON late fee/security deposit prohibitions" time="0.00706">
         </testcase>
     </testsuite>
 </testsuites>

@@ -49,6 +49,7 @@ export interface WizardData {
     bathrooms: string;
     furnished: string;
     parking: string;
+      description?: string;
   };
   terms: {
     rentAmount: string;
@@ -89,7 +90,7 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
     jurisdiction: { provinceCode: "" },
     landlord: { name: "", address: "", phone: "", email: "" },
     tenant: { name: "", phone: "", email: "", emergencyContact: "", emergencyPhone: "" },
-    property: { address: "", type: "", bedrooms: "", bathrooms: "", furnished: "", parking: "" },
+    property: { address: "", type: "", bedrooms: "", bathrooms: "", furnished: "", parking: "", description: "" },
     terms: { rentAmount: "", securityDeposit: "", leaseStart: "", leaseEnd: "", rentDueDate: "", lateFeesAmount: "", lateFeesGracePeriod: "" },
     clauses: { petsAllowed: "", smokingAllowed: "", sublettingAllowed: "", maintenanceResponsibility: "", earlyTermination: "", renewalTerms: "" }
   });
@@ -97,10 +98,21 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
   // Load autosave on mount
   useEffect(() => {
     try {
+      let parsed: any = null;
       const raw = localStorage.getItem("wizardData");
       if (raw) {
-        const parsed = JSON.parse(raw);
-        setWizardData((prev) => ({ ...prev, ...parsed }));
+        parsed = JSON.parse(raw);
+        setWizardData((prev) => ({
+          ...prev,
+          ...parsed,
+          property: { description: "", ...prev.property, ...(parsed.property || {}) }
+        }));
+      }
+      const stepRaw = localStorage.getItem("wizardStep");
+      const stepNum = stepRaw ? parseInt(stepRaw, 10) : 1;
+      if (Number.isFinite(stepNum) && stepNum >= 1 && stepNum <= steps.length) {
+        // Only resume beyond step 1 if province is known; otherwise keep at 1
+        setCurrentStep(parsed?.jurisdiction?.provinceCode ? stepNum : 1);
       }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -171,6 +183,11 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
   const { isValid, errors } = useStepValidity(wizardData, currentStep);
   const CurrentStepComponent = steps[currentStep - 1].component;
   const { t, lang, setLang } = useI18n();
+
+  // Persist current step (resume on return)
+  useEffect(() => {
+    try { localStorage.setItem("wizardStep", String(currentStep)); } catch {}
+  }, [currentStep]);
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -271,7 +288,7 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
               />
 
               {errors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded">
+                <div role="status" aria-live="assertive" className="bg-red-50 border border-red-200 text-red-800 text-sm p-3 rounded">
                   {errors.map((e, i) => (
                     <div key={`step-err-${i}`}>• {e}</div>
                   ))}

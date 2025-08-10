@@ -1,13 +1,10 @@
 /** @vitest-environment node */
 // Note: Playwright tests must be run via `npm run test:e2e`, not Vitest.
 import { test, expect } from '@playwright/test'
+import { goToWizard } from './_helpers'
 
 test('Ontario flow hides security deposit and disables late fee', async ({ page }) => {
-  await page.goto('/')
-  // Launch wizard from home CTA
-  const launch = page.getByRole('button', { name: /create agreement|start creating|get started/i }).first()
-  await launch.waitFor({ state: 'visible' })
-  await launch.click()
+  await goToWizard(page)
   // Wait for step 1 heading
   await page.getByRole('heading', { name: /jurisdiction/i }).waitFor({ state: 'visible' })
   // Jurisdiction

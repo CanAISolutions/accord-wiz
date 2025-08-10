@@ -32,6 +32,7 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
   const debounceRef = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const cacheRef = useRef<Map<string, PhotonFeature[]>>(new Map());
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => setQuery(value || ""), [value]);
 
@@ -49,14 +50,19 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
           setOpen(true);
           return;
         }
-        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=en&limit=5&countrycode=ca`;
-        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        if (abortRef.current) abortRef.current.abort();
+        abortRef.current = new AbortController();
+        const proxy = (import.meta as any).env?.VITE_PHOTON_PROXY_URL as string | undefined;
+        const base = proxy || 'https://photon.komoot.io/api/';
+        const url = `${base}?q=${encodeURIComponent(query)}&lang=en&limit=5&countrycode=ca`;
+        const res = await fetch(url, { headers: { "Accept": "application/json" }, signal: abortRef.current.signal });
         const data = await res.json();
         const feats = (data?.features || []).slice(0, 5);
         cacheRef.current.set(query, feats);
         setResults(feats);
         setOpen(true);
-      } catch {
+      } catch (err) {
+        if ((err as any)?.name === 'AbortError') return;
         setResults([]);
         setOpen(false);
       }

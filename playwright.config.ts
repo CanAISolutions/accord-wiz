@@ -18,6 +18,16 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium-prod',
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4173' },
+      webServer: {
+        command: 'npm run preview',
+        url: 'http://localhost:4173',
+        reuseExistingServer: true,
+        timeout: 120_000,
+      },
+    },
   ],
 })
 
