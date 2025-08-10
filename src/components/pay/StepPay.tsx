@@ -31,8 +31,25 @@ export default function StepPay() {
   if (!stripePromise || !clientSecret) return (
     <Card className="max-w-xl w-full">
       <CardHeader><CardTitle>Secure Payment</CardTitle></CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">Payment is not fully configured. Please set VITE_STRIPE_PUBLISHABLE_KEY and VITE_STRIPE_CREATE_INTENT_URL.</p>
+        <div className="flex justify-end">
+          <Button
+            onClick={async () => {
+              try {
+                const raw = localStorage.getItem('wizardData');
+                const data: WizardData | null = raw ? JSON.parse(raw) : null;
+                if (!data) { window.location.hash = '#/wizard'; return; }
+                const id = await finalizeAndGenerate(data, { paymentStatus: 'simulated_paid' });
+                window.location.hash = `#/preview/${id}`;
+              } catch {
+                window.location.hash = '#/wizard';
+              }
+            }}
+          >
+            Proceed (payments disabled)
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

@@ -187,7 +187,20 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
           <AlertDescription>
             Complete a one-time payment to enable secure PDF generation and signing.
             <div className="mt-3">
-              <Button onClick={() => navigate('/pay')}>Proceed to payment</Button>
+              <Button onClick={() => navigate('/pay')} className="mr-2">Proceed to payment</Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    const id = await finalizeAndGenerate(data, { paymentStatus: 'simulated_paid' });
+                    navigate(`/preview/${id}`);
+                  } catch {
+                    // no-op
+                  }
+                }}
+              >
+                Proceed (payments disabled)
+              </Button>
             </div>
           </AlertDescription>
         </Alert>

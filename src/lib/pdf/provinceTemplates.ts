@@ -32,6 +32,12 @@ export const templates: Record<string, ProvinceTemplate> = {
         ],
       },
       {
+        title: 'Right of Entry (BC)',
+        body: [
+          'Except in emergencies or with consent, the landlord must give proper written notice before entering the unit, including date, time, and reason. Entry should be at reasonable times.',
+        ],
+      },
+      {
         title: 'Deposits (BC)',
         body: [
           'A security deposit of up to half of one month’s rent may be collected. A separate pet damage deposit of up to half of one month’s rent may be collected if pets are permitted.',
@@ -46,9 +52,21 @@ export const templates: Record<string, ProvinceTemplate> = {
         ],
       },
       {
+        title: 'Assignments/Sublets (BC)',
+        body: [
+          'A tenant may assign or sublet with the landlord’s consent, which must not be unreasonably withheld. Any lawful fees must be as permitted by statute.',
+        ],
+      },
+      {
         title: 'Rent & Increases (BC)',
         body: [
           'Rent is payable on the due date specified in this agreement. Rent increases must comply with provincial rules and notice requirements.',
+        ],
+      },
+      {
+        title: 'Notice to End Tenancy (BC)',
+        body: [
+          'Ending a tenancy must follow the Act’s reasons and notice periods. Forms and timelines differ by reason (landlord use, cause, end of fixed term, etc.).',
         ],
       },
     ],
@@ -73,9 +91,27 @@ export const templates: Record<string, ProvinceTemplate> = {
         ],
       },
       {
+        title: 'Entry (ON)',
+        body: [
+          'A landlord may enter the unit only in limited circumstances (e.g., 24‑hour written notice for repairs, showings at specified times, or emergencies).',
+        ],
+      },
+      {
         title: 'Utilities & Services (ON)',
         body: [
           'Any utilities or services included in rent must be listed. The tenant pays for other utilities unless specified otherwise in this agreement.',
+        ],
+      },
+      {
+        title: 'Rent Increases (ON)',
+        body: [
+          'Rent increases must comply with the annual guideline and notice requirements, unless exempted by law.',
+        ],
+      },
+      {
+        title: 'Ending a Tenancy (ON)',
+        body: [
+          'Terminations require proper forms and notice periods. Landlord‑initiated terminations (e.g., personal use, purchaser’s own use) include compensation and form requirements.',
         ],
       },
     ],
@@ -91,6 +127,12 @@ export const templates: Record<string, ProvinceTemplate> = {
         title: 'Mandatory Lease Form (QC)',
         body: [
           'Residential leases must use the form prescribed by the TAL. This summary is provided for review and is not a substitute for the official form.',
+        ],
+      },
+      {
+        title: 'Rent & Adjustments (QC)',
+        body: [
+          'Rent changes and conditions must follow the Civil Code and TAL practices. Disputes can be addressed via TAL processes.',
         ],
       },
     ],
@@ -110,6 +152,18 @@ export const templates: Record<string, ProvinceTemplate> = {
         title: 'Deposits',
         body: [
           'Deposits, if permitted, must follow provincial limits and return timelines.',
+        ],
+      },
+      {
+        title: 'Entry & Repairs',
+        body: [
+          'Entry requires notice as provided by local law, except in emergencies. The landlord must maintain habitability and comply with building standards.',
+        ],
+      },
+      {
+        title: 'Termination',
+        body: [
+          'Ending a tenancy must follow local notice forms, reasons, and timelines. Parties should use official forms where applicable.',
         ],
       },
     ],
