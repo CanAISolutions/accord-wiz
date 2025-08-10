@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import StepPay from '@/components/pay/StepPay';
 
 declare global {
   namespace JSX {
@@ -45,26 +46,17 @@ const Pay = () => {
           <CardTitle className="text-center">Secure Payment</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(!PRICING_TABLE_ID && !PAYMENT_LINK_URL) ? (
+          {PUBLISHABLE_KEY ? (
+            <StepPay />
+          ) : (
             <>
               <p className="text-sm text-muted-foreground text-center">
-                Stripe is not fully configured. Set either VITE_STRIPE_PRICING_TABLE_ID (for Pricing Table) or
-                VITE_STRIPE_PAYMENT_LINK_URL (for Payment Link).
+                Payments are not configured. Set VITE_STRIPE_PUBLISHABLE_KEY and VITE_STRIPE_CREATE_INTENT_URL to enable live checkout.
               </p>
-            <div className="flex justify-center">
-              <Button variant="outline" onClick={() => navigate('/wizard')}>Skip for now</Button>
-            </div>
+              <div className="flex justify-center">
+                <Button variant="outline" onClick={() => navigate('/wizard')}>Back to Wizard</Button>
+              </div>
             </>
-          ) : process.env.NODE_ENV === 'production' ? (
-            // Temporarily disable real Stripe in production for assessment; route back to wizard
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-sm text-muted-foreground">Payments temporarily disabled for testing.</p>
-            <Button onClick={() => navigate('/wizard')}>Proceed</Button>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-            <Button onClick={() => navigate('/wizard')}>Proceed (Payments off)</Button>
-            </div>
           )}
         </CardContent>
       </Card>
