@@ -25,5 +25,15 @@ export default tseslint.config(
       ],
       "@typescript-eslint/no-unused-vars": "off",
     },
+  },
+  {
+    files: ["api/**/*.{ts,tsx,js}", "scripts/**/*.{ts,tsx,js}"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+    },
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   }
 );

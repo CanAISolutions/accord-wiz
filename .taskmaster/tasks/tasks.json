@@ -34,12 +34,25 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Create Vitest Skeleton for Serverless Endpoints",
+        "description": "Set up Vitest testing infrastructure for serverless API endpoints (api/checkout.ts and api/download.ts) with smoke tests and ensure proper Node environment linting configuration for the api directory.",
+        "details": "1. Create test files for serverless endpoints:\n   - `tests/api/checkout.test.ts`\n   - `tests/api/download.test.ts`\n\n2. Implement minimal smoke tests for each endpoint:\n   - Mock necessary dependencies and runtime context\n   - Test basic request/response flow\n   - For functions requiring unavailable runtime components, create documented test stubs with TODOs\n\n3. Set up testing utilities for API endpoints:\n   - Create helper functions for mocking serverless context\n   - Implement request/response mocking utilities\n   - Add fixtures for common test data\n\n4. Configure Node environment linting for api directory:\n   - Update ESLint configuration to include api/**\n   - Add appropriate Node.js environment settings\n   - Ensure serverless-specific rules are applied\n\n5. Update Vitest configuration:\n   - Configure environment for API tests (node vs jsdom)\n   - Set up appropriate mocking strategy for serverless context\n   - Ensure JUnit export includes API test results\n\n6. Document testing approach for serverless functions:\n   - Add README section on testing API endpoints\n   - Include examples of mocking strategies\n   - Document limitations and workarounds",
+        "testStrategy": "1. Verify test structure:\n   - Confirm test files exist for both checkout.ts and download.ts endpoints\n   - Validate test file organization follows project conventions\n\n2. Run smoke tests:\n   - Execute `npm run test:api` or equivalent command\n   - Verify tests pass with appropriate mocking\n   - Check test coverage for basic endpoint functionality\n\n3. Validate linting configuration:\n   - Run `npm run lint` and verify api/** files are included\n   - Confirm ESLint applies Node.js environment rules to API files\n   - Test with a deliberate linting error in an API file to ensure detection\n\n4. Review test documentation:\n   - Ensure README updates clearly explain API testing approach\n   - Verify documented stubs include clear TODOs for future implementation\n\n5. CI integration:\n   - Confirm API tests run successfully in CI pipeline\n   - Verify JUnit results include API test outcomes\n   - Check that test coverage reports include API endpoints",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-08T20:51:49.186Z",
       "description": "Default tasks context",
-      "updated": "2025-08-08T21:13:42.000Z"
+      "updated": "2025-08-10T21:47:13.284Z"
     }
   }
 }
