@@ -65,7 +65,9 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
 
   // Title and jurisdiction (simple header band)
   page.drawRectangle({ x: 0, y: y - 10, width, height: 34, color: rgb(0.96, 0.97, 1) });
-  page.drawText("Residential Tenancy Agreement", { x: margin, y, size: 18, font });
+  // Replace any non-ASCII dashes in titles to avoid WinAnsi encode issues
+  const safeTitle = "Residential Tenancy Agreement".replace(/[\u2010-\u2015]/g, "-");
+  page.drawText(safeTitle, { x: margin, y, size: 18, font });
   y -= 36;
   const prov = getProvinceRules(data.jurisdiction?.provinceCode || "");
   wrapAndDraw(`Jurisdiction: ${prov?.name ?? "N/A"}`);
@@ -161,10 +163,10 @@ export async function buildAgreementPdf(opts: BuildPdfOptions): Promise<Uint8Arr
   // Province notes / links
   drawHeading("11. Provincial Notices");
   const tmpl = getProvinceTemplate(prov?.code);
-  tmpl.notes?.forEach((n) => wrapAndDraw(n));
+  tmpl.notes?.forEach((n) => wrapAndDraw(n.replace(/[\u2010-\u2015]/g, "-")));
   tmpl.sections.forEach((section) => {
-    drawHeading(section.title);
-    section.body.forEach((p) => wrapAndDraw(p));
+    drawHeading(section.title.replace(/[\u2010-\u2015]/g, "-"));
+    section.body.forEach((p) => wrapAndDraw(p.replace(/[\u2010-\u2015]/g, "-")));
   });
 
   // Plain‑Language Summary

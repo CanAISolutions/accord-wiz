@@ -45,8 +45,14 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
     }
     debounceRef.current = window.setTimeout(async () => {
       try {
-        if (cacheRef.current.has(query)) {
-          setResults(cacheRef.current.get(query) || []);
+        // Sanitize query to avoid API 400s on characters like '#' and typographic hyphens
+        const cleaned = (query || "")
+          .replace(/#/g, " ")
+          .replace(/[\u2010\u2011\u2012\u2013\u2014]/g, "-")
+          .trim();
+
+        if (cacheRef.current.has(cleaned)) {
+          setResults(cacheRef.current.get(cleaned) || []);
           setOpen((cacheRef.current.get(query) || []).length > 0);
           return;
         }
@@ -54,12 +60,12 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
         abortRef.current = new AbortController();
         const proxy = (import.meta as any).env?.VITE_PHOTON_PROXY_URL as string | undefined;
         const base = proxy || 'https://photon.komoot.io/api/';
-        const url = `${base}?q=${encodeURIComponent(query)}&lang=en&limit=5&countrycode=ca`;
+        const url = `${base}?q=${encodeURIComponent(cleaned)}&lang=en&limit=5&countrycode=ca`;
         let feats: PhotonFeature[] = [];
         const fallbackToNominatim = async () => {
           const nomProxy = (import.meta as any).env?.VITE_NOMINATIM_PROXY_URL as string | undefined;
           const nomBase = nomProxy || 'https://nominatim.openstreetmap.org/search';
-          const nomUrl = `${nomBase}?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`;
+          const nomUrl = `${nomBase}?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(cleaned)}`;
           const res2 = await fetch(nomUrl, { headers: { "Accept": "application/json" }, signal: abortRef.current.signal });
           if (!res2.ok) throw new Error('nominatim_failed');
           const data2 = await res2.json();
@@ -86,7 +92,7 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
           // Fallback to Nominatim if Photon fails
           try { await fallbackToNominatim(); } catch {}
         }
-        cacheRef.current.set(query, feats);
+        cacheRef.current.set(cleaned, feats);
         setResults(feats);
         setOpen(feats.length > 0);
       } catch (err) {
