@@ -26,7 +26,8 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
   const [landlordSig, setLandlordSig] = useState<string | null>(null);
   const [tenantSig, setTenantSig] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
-  const [paymentRequired, setPaymentRequired] = useState<boolean | null>(null);
+  const paymentsEnabled = Boolean((import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY);
+  const [paymentRequired, setPaymentRequired] = useState<boolean | null>(paymentsEnabled ? null : false);
   const navigate = useNavigate();
   const { add, has } = useAchievements();
 
@@ -46,11 +47,17 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
 
   useEffect(() => {
     (async () => {
+      // If payments are not enabled, allow PDF generation without gating
+      if (!paymentsEnabled) { setPaymentRequired(false); return; }
+      try {
+        const localOk = localStorage.getItem('canai.payment.ok') === 'true';
+        if (localOk) { setPaymentRequired(false); return; }
+      } catch {}
       const { data: { session } } = await supabase.auth.getSession();
       const ok = await userHasActivePayment(session?.user?.id);
       setPaymentRequired(!ok);
     })();
-  }, []);
+  }, [paymentsEnabled]);
 
   const handleGeneratePdf = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -173,7 +180,7 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
 
   return (
     <div className="space-y-6">
-      {paymentRequired && (
+      {paymentRequired === true && (
         <Alert className="border-amber-300 bg-amber-50">
           <AlertTitle>Payment required to generate the PDF</AlertTitle>
           <AlertDescription>
@@ -301,7 +308,7 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
           onClick={handleGeneratePdf}
           size="lg"
           className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-legal"
-          disabled={isQuebec || generating || paymentRequired === true}
+          disabled={isQuebec || generating || paymentRequired !== false}
         >
           {generating ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Download className="h-5 w-5 mr-2" />}
           {generating ? 'Generating…' : 'Generate PDF'}
