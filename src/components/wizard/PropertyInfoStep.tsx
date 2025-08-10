@@ -18,11 +18,13 @@ const PropertyInfoStep = ({ data, updateData }: PropertyInfoStepProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="property-address">Property Address *</Label>
+        <Label id="label-property-address" htmlFor="property-address">Property Address *</Label>
         <AddressAutocomplete
           value={data.property.address}
           onChange={(val) => handleChange('address', val)}
           placeholder="Start typing address..."
+          id="property-address"
+          ariaLabelledby="label-property-address property-address"
         />
         <p className="text-xs text-muted-foreground">Powered by OpenStreetMap/Photon (free). Edit as needed to match the unit and legal civic address.</p>
       </div>

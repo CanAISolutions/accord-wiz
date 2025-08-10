@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Shield, Clock, CheckCircle, Info } from "lucide-react";
+import DepositCapsChart from "@/components/charts/DepositCapsChart";
+import House3D from "@/components/House3D";
 import { useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { PROVINCES, ProvinceCode } from "@/lib/canadaRentalRules";
@@ -22,7 +24,7 @@ const Index = () => {
             {/* Placeholder for ComplianceChip on landing (no province yet) */}
             <span className="hidden md:inline-flex text-xs text-muted-foreground">Compliance: —</span>
             <Button
-              onClick={() => navigate('/signin')}
+              onClick={() => navigate('/wizard')}
             className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-legal"
           >
             Create Agreement
@@ -45,7 +47,7 @@ const Index = () => {
             </p>
             <Button
               size="lg"
-              onClick={() => navigate('/signin')}
+              onClick={() => navigate('/wizard')}
               className="bg-gradient-hero hover:opacity-90 transition-all transform hover:scale-105 shadow-legal text-lg px-8 py-6"
             >
               Start Creating Your Agreement
@@ -70,7 +72,7 @@ const Index = () => {
                     const next = { ...prev, jurisdiction: { provinceCode: p.code as ProvinceCode } };
                     localStorage.setItem('wizardData', JSON.stringify(next));
                   } catch {}
-                  navigate('/signin');
+                  navigate('/wizard');
                 }}
               >
                 <div className="font-medium">{p.name}</div>
@@ -174,6 +176,12 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
             </Card>
+          </div>
+          <div className="mt-10 max-w-4xl mx-auto">
+            <DepositCapsChart />
+          </div>
+          <div className="mt-10 max-w-3xl mx-auto">
+            <House3D />
           </div>
         </div>
       </section>

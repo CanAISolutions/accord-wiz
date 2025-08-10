@@ -1,6 +1,6 @@
-<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="16.10508">
-<testsuite name="on-flow.spec.ts" timestamp="2025-08-08T22:41:54.093Z" hostname="chromium" tests="1" failures="0" skipped="0" time="5.853" errors="0">
-<testcase name="Ontario flow hides security deposit and disables late fee" classname="on-flow.spec.ts" time="5.853">
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="11.244734">
+<testsuite name="on-flow.spec.ts" timestamp="2025-08-09T22:16:40.202Z" hostname="chromium" tests="1" failures="0" skipped="0" time="9.159" errors="0">
+<testcase name="Ontario flow hides security deposit and disables late fee" classname="on-flow.spec.ts" time="9.159">
 </testcase>
 </testsuite>
 </testsuites>

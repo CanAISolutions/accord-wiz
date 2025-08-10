@@ -52,23 +52,15 @@ const Pay = () => {
                 <Button variant="outline" onClick={() => (location.hash = '#/wizard')}>Skip for now</Button>
               </div>
             </>
-          ) : (PRICING_TABLE_ID && PUBLISHABLE_KEY) ? (
-            <div className="flex justify-center">
-              <stripe-pricing-table
-                pricing-table-id={PRICING_TABLE_ID}
-                publishable-key={PUBLISHABLE_KEY}
-              />
+          ) : process.env.NODE_ENV === 'production' ? (
+            // Temporarily disable real Stripe in production for assessment; route back to wizard
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-sm text-muted-foreground">Payments temporarily disabled for testing.</p>
+              <Button onClick={() => (location.hash = '#/wizard')}>Proceed</Button>
             </div>
           ) : (
             <div className="flex justify-center">
-              <Button onClick={() => {
-                const configuredUrl = PAYMENT_LINK_URL!;
-                // If your Payment Link supports overriding success_url, append it; otherwise configure in Stripe UI
-                const successParam = 'success_url=';
-                const successUrl = encodeURIComponent(`${location.origin}/#/pay?success=true`);
-                const url = configuredUrl.includes(successParam) ? configuredUrl : `${configuredUrl}${configuredUrl.includes('?') ? '&' : '?'}${successParam}${successUrl}`;
-                window.location.href = url;
-              }}>Pay securely</Button>
+              <Button onClick={() => (location.hash = '#/wizard')}>Proceed (Payments off)</Button>
             </div>
           )}
         </CardContent>

@@ -7,3 +7,10 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // Basic web-vitals capture (no-op in prod if endpoint not set)
 initVitals();
+
+// Register basic service worker for offline shell
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}

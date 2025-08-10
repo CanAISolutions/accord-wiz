@@ -8,6 +8,8 @@ import { useMemo } from "react";
 import InspectionChecklist from "./InspectionChecklist";
 import RightRulePanel from "@/components/compliance/RightRulePanel";
 import ClauseExplainer from "@/components/compliance/ClauseExplainer";
+import { useAchievements } from "@/components/achievements/useAchievements";
+import HelpPanel from "@/components/help/HelpPanel";
 
 interface RentalTermsStepProps {
   data: WizardData;
@@ -25,10 +27,21 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
     lateFee: parseFloat(data.terms.lateFeesAmount || "0"),
   };
 
+  const { add, has } = useAchievements();
   const validation = useMemo(() => {
     const province = data.jurisdiction?.provinceCode as any;
     if (!province) return { warnings: [], errors: [] };
-    return validateTerms(province, isFinite(numbers.rent) ? numbers.rent : undefined, isFinite(numbers.deposit) ? numbers.deposit : undefined, isFinite(numbers.lateFee) ? numbers.lateFee : undefined);
+    const v = validateTerms(
+      province,
+      isFinite(numbers.rent) ? numbers.rent : undefined,
+      isFinite(numbers.deposit) ? numbers.deposit : undefined,
+      isFinite(numbers.lateFee) ? numbers.lateFee : undefined
+    );
+    if (v.errors.length === 0 && !has("termsValid")) {
+      // Only award after a first successful validation pass
+      add("termsValid");
+    }
+    return v;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.jurisdiction?.provinceCode, data.terms.rentAmount, data.terms.securityDeposit, data.terms.lateFeesAmount]);
 
@@ -247,6 +260,7 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
       )}
 
       <InspectionChecklist />
+      <HelpPanel />
     </div>
   );
 };

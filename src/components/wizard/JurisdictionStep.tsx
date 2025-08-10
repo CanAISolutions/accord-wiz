@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PROVINCES, ProvinceCode } from "@/lib/canadaRentalRules";
 import { WizardData } from "../RentalWizard";
+import { useAchievements } from "@/components/achievements/useAchievements";
 
 interface JurisdictionStepProps {
   data: WizardData;
@@ -9,8 +10,10 @@ interface JurisdictionStepProps {
 }
 
 const JurisdictionStep = ({ data, updateData }: JurisdictionStepProps) => {
+  const { add, has } = useAchievements();
   const handleChange = (code: ProvinceCode) => {
     updateData("jurisdiction", { provinceCode: code });
+    if (!has("jurisdiction")) add("jurisdiction");
   };
 
   return (

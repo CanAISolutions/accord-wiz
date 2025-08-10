@@ -8,9 +8,15 @@ import SignaturePad from "@/components/signatures/SignaturePad";
 import { useState } from "react";
 import { buildAgreementPdf } from "@/lib/pdf/buildAgreement";
 import { buildOntarioStandardLeasePdf, getOntarioLeaseDeepLink } from "@/lib/pdf/ontarioStandardLease";
+import { recordSignatureAudit } from "@/components/signatures/SignatureAudit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import FeedbackWidget from "@/components/feedback/FeedbackWidget";
+import FeedbackWidget from "@/components/feedback/FeedbackWidget";
+import FeedbackWidget from "@/components/feedback/FeedbackWidget";
+import { userHasActivePayment } from "@/integrations/payments/checkPayment";
+import { useAchievements } from "@/components/achievements/useAchievements";
 
 interface PreviewStepProps {
   data: WizardData;
@@ -20,6 +26,7 @@ interface PreviewStepProps {
 const PreviewStep = ({ data }: PreviewStepProps) => {
   const [landlordSig, setLandlordSig] = useState<string | null>(null);
   const [tenantSig, setTenantSig] = useState<string | null>(null);
+  const { add, has } = useAchievements();
 
   const handleDownloadTxt = () => {
     // Create a comprehensive rental agreement document
@@ -35,9 +42,10 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const requirePayment = () => {
-    const flag = localStorage.getItem('canai.payment.ok');
-    return flag !== 'true';
+  const requirePayment = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const ok = await userHasActivePayment(session?.user?.id);
+    return !ok;
   };
 
   const handleGeneratePdf = async () => {
@@ -46,15 +54,20 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
       location.hash = '#/signin';
       return;
     }
-    if (requirePayment()) {
+    if (await requirePayment()) {
       location.hash = '#/pay';
       return;
     }
     const now = new Date().toISOString();
+    const agreementId = crypto.randomUUID();
     const bytes = await buildAgreementPdf({ data, signatures: [
       { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
       { role: 'tenant', name: data.tenant.name, imageDataUrl: tenantSig || undefined, signedAtIso: now },
     ]});
+    await recordSignatureAudit(agreementId, [
+      { role: 'landlord', name: data.landlord.name, signedAtIso: now },
+      { role: 'tenant', name: data.tenant.name, signedAtIso: now },
+    ]);
     const blob = new Blob([bytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -64,12 +77,13 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    if (!has('finished')) add('finished');
   };
 
   const handleComposeEmail = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { location.hash = '#/signin'; return; }
-    if (requirePayment()) { location.hash = '#/pay'; return; }
+    if (await requirePayment()) { location.hash = '#/pay'; return; }
     const prov = (data.jurisdiction?.provinceCode as any) || '';
     const subject = encodeURIComponent(`Rental Agreement for ${data.property.address || 'Property'}`);
     const lines: string[] = [];
@@ -93,7 +107,7 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
   const handleDownloadRtf = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { location.hash = '#/signin'; return; }
-    if (requirePayment()) { location.hash = '#/pay'; return; }
+    if (await requirePayment()) { location.hash = '#/pay'; return; }
     const lines: string[] = [];
     lines.push("{\\rtf1\\ansi");
     lines.push(`\\b Residential Rental Agreement\\b0\\line`);
@@ -123,7 +137,7 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
   const handleDownloadIcs = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { location.hash = '#/signin'; return; }
-    if (requirePayment()) { location.hash = '#/pay'; return; }
+    if (await requirePayment()) { location.hash = '#/pay'; return; }
     const dt = (d: string) => d?.replaceAll('-', '') + 'T090000Z';
     const uid = crypto.randomUUID();
     const ics = [
