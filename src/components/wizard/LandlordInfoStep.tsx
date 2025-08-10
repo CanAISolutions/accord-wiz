@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useMemo } from "react";
 import { WizardData } from "../RentalWizard";
 
 interface LandlordInfoStepProps {
@@ -12,6 +13,8 @@ const LandlordInfoStep = ({ data, updateData }: LandlordInfoStepProps) => {
   const handleChange = (field: string, value: string) => {
     updateData('landlord', { [field]: value });
   };
+
+  const phoneOrEmailFilled = useMemo(() => Boolean(data.landlord.phone) || Boolean(data.landlord.email), [data.landlord.phone, data.landlord.email]);
 
   return (
     <div className="space-y-6">
@@ -28,7 +31,8 @@ const LandlordInfoStep = ({ data, updateData }: LandlordInfoStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="landlord-phone">Phone Number *</Label>
+          <Label htmlFor="landlord-phone">Phone Number {phoneOrEmailFilled ? '' : '*'}
+          </Label>
           <Input
             id="landlord-phone"
             type="tel"
@@ -41,7 +45,8 @@ const LandlordInfoStep = ({ data, updateData }: LandlordInfoStepProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="landlord-email">Email Address *</Label>
+        <Label htmlFor="landlord-email">Email Address {phoneOrEmailFilled ? '' : '*'}
+        </Label>
         <Input
           id="landlord-email"
           type="email"
@@ -66,7 +71,7 @@ const LandlordInfoStep = ({ data, updateData }: LandlordInfoStepProps) => {
 
       <div className="bg-accent/50 p-4 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          <strong>Note:</strong> This information will appear on the rental agreement as the property owner/landlord. 
+          <strong>Note:</strong> This information will appear on the rental agreement as the property owner/landlord.
           Ensure all details are accurate and up-to-date.
         </p>
       </div>

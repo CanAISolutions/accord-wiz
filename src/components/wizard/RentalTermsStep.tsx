@@ -10,6 +10,11 @@ import RightRulePanel from "@/components/compliance/RightRulePanel";
 import ClauseExplainer from "@/components/compliance/ClauseExplainer";
 import { useAchievements } from "@/components/achievements/useAchievements";
 import HelpPanel from "@/components/help/HelpPanel";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface RentalTermsStepProps {
   data: WizardData;
@@ -153,23 +158,55 @@ const RentalTermsStep = ({ data, updateData }: RentalTermsStepProps) => {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="lease-start">Lease Start Date *</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start font-normal">
+                {data.terms.leaseStart || "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Calendar
+                mode="single"
+                selected={data.terms.leaseStart ? new Date(data.terms.leaseStart) : undefined}
+                onSelect={(d) => handleChange('leaseStart', d ? d.toISOString().slice(0,10) : "")}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {/* Hidden but accessible input to support keyboard entry and tests */}
           <Input
             id="lease-start"
             type="date"
             value={data.terms.leaseStart}
             onChange={(e) => handleChange('leaseStart', e.target.value)}
-            className="bg-background"
+            className="sr-only"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="lease-end">Lease End Date *</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start font-normal">
+                {data.terms.leaseEnd || "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Calendar
+                mode="single"
+                selected={data.terms.leaseEnd ? new Date(data.terms.leaseEnd) : undefined}
+                onSelect={(d) => handleChange('leaseEnd', d ? d.toISOString().slice(0,10) : "")}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {/* Hidden but accessible input to support keyboard entry and tests */}
           <Input
             id="lease-end"
             type="date"
             value={data.terms.leaseEnd}
             onChange={(e) => handleChange('leaseEnd', e.target.value)}
-            className="bg-background"
+            className="sr-only"
           />
         </div>
       </div>

@@ -1,22 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Download, FileText, PenLine } from "lucide-react";
+import { Download, FileText, PenLine, Loader2 } from "lucide-react";
 import { WizardData } from "../RentalWizard";
 import { getProvinceRules } from "@/lib/canadaRentalRules";
 import SignaturePad from "@/components/signatures/SignaturePad";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { buildAgreementPdf } from "@/lib/pdf/buildAgreement";
-import { buildOntarioStandardLeasePdf, getOntarioLeaseDeepLink } from "@/lib/pdf/ontarioStandardLease";
+import { getOntarioLeaseDeepLink } from "@/lib/pdf/ontarioStandardLease";
 import { recordSignatureAudit } from "@/components/signatures/SignatureAudit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import FeedbackWidget from "@/components/feedback/FeedbackWidget";
-import FeedbackWidget from "@/components/feedback/FeedbackWidget";
-import FeedbackWidget from "@/components/feedback/FeedbackWidget";
 import { userHasActivePayment } from "@/integrations/payments/checkPayment";
 import { useAchievements } from "@/components/achievements/useAchievements";
+import { useNavigate } from "react-router-dom";
 
 interface PreviewStepProps {
   data: WizardData;
@@ -26,6 +25,9 @@ interface PreviewStepProps {
 const PreviewStep = ({ data }: PreviewStepProps) => {
   const [landlordSig, setLandlordSig] = useState<string | null>(null);
   const [tenantSig, setTenantSig] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [paymentRequired, setPaymentRequired] = useState<boolean | null>(null);
+  const navigate = useNavigate();
   const { add, has } = useAchievements();
 
   const handleDownloadTxt = () => {
@@ -42,48 +44,49 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const requirePayment = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const ok = await userHasActivePayment(session?.user?.id);
-    return !ok;
-  };
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const ok = await userHasActivePayment(session?.user?.id);
+      setPaymentRequired(!ok);
+    })();
+  }, []);
 
   const handleGeneratePdf = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      location.hash = '#/signin';
-      return;
+    if (!session) { navigate('/signin'); return; }
+    if (paymentRequired) { navigate('/pay'); return; }
+    setGenerating(true);
+    try {
+      const now = new Date().toISOString();
+      const agreementId = crypto.randomUUID();
+      const bytes = await buildAgreementPdf({ data, signatures: [
+        { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
+        { role: 'tenant', name: data.tenant.name, imageDataUrl: tenantSig || undefined, signedAtIso: now },
+      ]});
+      await recordSignatureAudit(agreementId, [
+        { role: 'landlord', name: data.landlord.name, signedAtIso: now },
+        { role: 'tenant', name: data.tenant.name, signedAtIso: now },
+      ]);
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Rental_Agreement_${data.tenant.name.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (!has('finished')) add('finished');
+    } finally {
+      setGenerating(false);
     }
-    if (await requirePayment()) {
-      location.hash = '#/pay';
-      return;
-    }
-    const now = new Date().toISOString();
-    const agreementId = crypto.randomUUID();
-    const bytes = await buildAgreementPdf({ data, signatures: [
-      { role: 'landlord', name: data.landlord.name, imageDataUrl: landlordSig || undefined, signedAtIso: now },
-      { role: 'tenant', name: data.tenant.name, imageDataUrl: tenantSig || undefined, signedAtIso: now },
-    ]});
-    await recordSignatureAudit(agreementId, [
-      { role: 'landlord', name: data.landlord.name, signedAtIso: now },
-      { role: 'tenant', name: data.tenant.name, signedAtIso: now },
-    ]);
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Rental_Agreement_${data.tenant.name.replace(/\s+/g, '_')}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    if (!has('finished')) add('finished');
   };
 
   const handleComposeEmail = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { location.hash = '#/signin'; return; }
-    if (await requirePayment()) { location.hash = '#/pay'; return; }
+    if (!session) { navigate('/signin'); return; }
+    if (paymentRequired) { navigate('/pay'); return; }
     const prov = (data.jurisdiction?.provinceCode as any) || '';
     const subject = encodeURIComponent(`Rental Agreement for ${data.property.address || 'Property'}`);
     const lines: string[] = [];
@@ -106,8 +109,8 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
 
   const handleDownloadRtf = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { location.hash = '#/signin'; return; }
-    if (await requirePayment()) { location.hash = '#/pay'; return; }
+    if (!session) { navigate('/signin'); return; }
+    if (paymentRequired) { navigate('/pay'); return; }
     const lines: string[] = [];
     lines.push("{\\rtf1\\ansi");
     lines.push(`\\b Residential Rental Agreement\\b0\\line`);
@@ -136,8 +139,8 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
 
   const handleDownloadIcs = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { location.hash = '#/signin'; return; }
-    if (await requirePayment()) { location.hash = '#/pay'; return; }
+    if (!session) { navigate('/signin'); return; }
+    if (paymentRequired) { navigate('/pay'); return; }
     const dt = (d: string) => d?.replaceAll('-', '') + 'T090000Z';
     const uid = crypto.randomUUID();
     const ics = [
@@ -170,6 +173,17 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
 
   return (
     <div className="space-y-6">
+      {paymentRequired && (
+        <Alert className="border-amber-300 bg-amber-50">
+          <AlertTitle>Payment required to generate the PDF</AlertTitle>
+          <AlertDescription>
+            Complete a one-time payment to enable secure PDF generation and signing.
+            <div className="mt-3">
+              <Button onClick={() => navigate('/pay')}>Proceed to payment</Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
       {isQuebec && (
         <Alert className="border-amber-300 bg-amber-50">
           <AlertTitle>Québec requires the official TAL lease form</AlertTitle>
@@ -287,10 +301,10 @@ const PreviewStep = ({ data }: PreviewStepProps) => {
           onClick={handleGeneratePdf}
           size="lg"
           className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-legal"
-          disabled={isQuebec}
+          disabled={isQuebec || generating || paymentRequired === true}
         >
-          <Download className="h-5 w-5 mr-2" />
-          Generate PDF
+          {generating ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Download className="h-5 w-5 mr-2" />}
+          {generating ? 'Generating…' : 'Generate PDF'}
         </Button>
 
         <div>

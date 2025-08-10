@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useMemo } from "react";
 import { WizardData } from "../RentalWizard";
 
 interface TenantInfoStepProps {
@@ -11,6 +12,8 @@ const TenantInfoStep = ({ data, updateData }: TenantInfoStepProps) => {
   const handleChange = (field: string, value: string) => {
     updateData('tenant', { [field]: value });
   };
+
+  const phoneOrEmailFilled = useMemo(() => Boolean(data.tenant.phone) || Boolean(data.tenant.email), [data.tenant.phone, data.tenant.email]);
 
   return (
     <div className="space-y-6">
@@ -27,7 +30,8 @@ const TenantInfoStep = ({ data, updateData }: TenantInfoStepProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="tenant-phone">Phone Number *</Label>
+          <Label htmlFor="tenant-phone">Phone Number {phoneOrEmailFilled ? '' : '*'}
+          </Label>
           <Input
             id="tenant-phone"
             type="tel"
@@ -40,7 +44,8 @@ const TenantInfoStep = ({ data, updateData }: TenantInfoStepProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="tenant-email">Email Address *</Label>
+        <Label htmlFor="tenant-email">Email Address {phoneOrEmailFilled ? '' : '*'}
+        </Label>
         <Input
           id="tenant-email"
           type="email"
@@ -52,8 +57,8 @@ const TenantInfoStep = ({ data, updateData }: TenantInfoStepProps) => {
       </div>
 
       <div className="border-t pt-6">
-        <h4 className="font-semibold text-foreground mb-4">Emergency Contact Information</h4>
-        
+        <fieldset>
+          <legend className="font-semibold text-foreground mb-4">Emergency Contact Information</legend>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="emergency-contact">Emergency Contact Name *</Label>
@@ -78,12 +83,13 @@ const TenantInfoStep = ({ data, updateData }: TenantInfoStepProps) => {
             />
           </div>
         </div>
+        </fieldset>
       </div>
 
       <div className="bg-accent/50 p-4 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          <strong>Privacy Notice:</strong> Tenant information will be used solely for the rental agreement 
-          and property management purposes. Emergency contact information is required for safety and 
+          <strong>Privacy Notice:</strong> Tenant information will be used solely for the rental agreement
+          and property management purposes. Emergency contact information is required for safety and
           communication purposes.
         </p>
       </div>

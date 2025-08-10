@@ -221,7 +221,14 @@ const RentalWizard = ({ onBack }: RentalWizardProps) => {
               <option value="fr">FR</option>
             </select>
             <BadgeDisplay />
-            <ComplianceChip provinceCode={wizardData.jurisdiction?.provinceCode} hasErrors={!isValid && errors.length > 0} />
+             <button
+               type="button"
+               onClick={() => setShowProvinceModal(true)}
+               className="focus:outline-none"
+               aria-label="Change province"
+             >
+               <ComplianceChip provinceCode={wizardData.jurisdiction?.provinceCode} hasErrors={!isValid && errors.length > 0} />
+             </button>
           </div>
         </div>
       </header>

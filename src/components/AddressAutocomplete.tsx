@@ -31,6 +31,7 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const debounceRef = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const cacheRef = useRef<Map<string, PhotonFeature[]>>(new Map());
 
   useEffect(() => setQuery(value || ""), [value]);
 
@@ -43,10 +44,17 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
     }
     debounceRef.current = window.setTimeout(async () => {
       try {
+        if (cacheRef.current.has(query)) {
+          setResults(cacheRef.current.get(query) || []);
+          setOpen(true);
+          return;
+        }
         const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=en&limit=5&countrycode=ca`;
         const res = await fetch(url, { headers: { "Accept": "application/json" } });
         const data = await res.json();
-        setResults((data?.features || []).slice(0, 5));
+        const feats = (data?.features || []).slice(0, 5);
+        cacheRef.current.set(query, feats);
+        setResults(feats);
         setOpen(true);
       } catch {
         setResults([]);
@@ -113,30 +121,35 @@ export default function AddressAutocomplete({ value, onChange, placeholder, id, 
           if (normalized.length > 0) setOpen(true);
         }}
       />
-      {open && normalized.length > 0 && (
+      {open && (
         <Card id="addr-suggest" className="absolute z-50 mt-1 w-full max-h-56 overflow-auto" role="listbox">
-          <ul>
-            {normalized.map((r, idx) => (
-              <li key={`${r.value}-${idx}`}>
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={idx === activeIdx}
-                  className={`w-full text-left px-3 py-2 hover:bg-accent ${idx===activeIdx ? 'bg-accent' : ''}`}
-                  onMouseEnter={() => setActiveIdx(idx)}
-                  onClick={() => {
-                    onChange(r.value);
-                    setQuery(r.value);
-                    setOpen(false);
-                  }}
-                >
-                  {r.label}
-                </button>
-              </li>
-            ))}
-          </ul>
+          {normalized.length > 0 ? (
+            <ul>
+              {normalized.map((r, idx) => (
+                <li key={`${r.value}-${idx}`}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={idx === activeIdx}
+                    className={`w-full text-left px-3 py-2 hover:bg-accent ${idx===activeIdx ? 'bg-accent' : ''}`}
+                    onMouseEnter={() => setActiveIdx(idx)}
+                    onClick={() => {
+                      onChange(r.value);
+                      setQuery(r.value);
+                      setOpen(false);
+                    }}
+                  >
+                    {r.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="px-3 py-2 text-sm text-muted-foreground">No results. You can continue typing the full address.</div>
+          )}
         </Card>
       )}
+      <div className="mt-1 text-[10px] text-muted-foreground">Powered by OpenStreetMap/Photon</div>
     </div>
   );
 }

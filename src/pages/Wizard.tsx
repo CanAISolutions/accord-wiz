@@ -1,7 +1,9 @@
 import RentalWizard from "@/components/RentalWizard";
+import { useNavigate } from "react-router-dom";
 
 const Wizard = () => {
-  return <RentalWizard onBack={() => (window.location.href = "/")} />;
+  const navigate = useNavigate();
+  return <RentalWizard onBack={() => navigate("/")} />;
 };
 
 export default Wizard;

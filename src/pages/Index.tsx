@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Shield, Clock, CheckCircle, Info } from "lucide-react";
-import DepositCapsChart from "@/components/charts/DepositCapsChart";
-import House3D from "@/components/House3D";
+import React, { Suspense } from "react";
+const DepositCapsChart = React.lazy(() => import("@/components/charts/DepositCapsChart"));
+const House3D = React.lazy(() => import("@/components/House3D"));
 import { useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { PROVINCES, ProvinceCode } from "@/lib/canadaRentalRules";
@@ -18,7 +19,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <FileText className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">RentalWiz</h1>
+            <h1 className="text-2xl font-bold text-foreground">accord‑wiz</h1>
           </div>
           <div className="flex items-center gap-3">
             {/* Placeholder for ComplianceChip on landing (no province yet) */}
@@ -42,8 +43,7 @@ const Index = () => {
               <span className="block text-primary mt-2">Made Simple</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Create legally compliant rental agreements in minutes with our guided wizard.
-              Trusted by thousands of landlords nationwide.
+              Create province‑specific rental agreements in minutes with our guided wizard.
             </p>
             <Button
               size="lg"
@@ -152,7 +152,7 @@ const Index = () => {
                 <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Legally Compliant</CardTitle>
                 <CardDescription>
-                  All agreements follow state and federal rental laws and regulations
+                  All agreements enforce the correct province or territory’s tenancy rules
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -178,10 +178,14 @@ const Index = () => {
             </Card>
           </div>
           <div className="mt-10 max-w-4xl mx-auto">
-            <DepositCapsChart />
+            <Suspense fallback={<div className="h-64" />}>
+              <DepositCapsChart />
+            </Suspense>
           </div>
           <div className="mt-10 max-w-3xl mx-auto">
-            <House3D />
+            <Suspense fallback={<div className="h-64" />}>
+              <House3D />
+            </Suspense>
           </div>
         </div>
       </section>
