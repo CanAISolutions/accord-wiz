@@ -1,0 +1,69 @@
+# Task ID: 3
+# Title: Create Vitest Skeleton for Serverless Endpoints
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Set up Vitest testing infrastructure for serverless API endpoints (api/checkout.ts and api/download.ts) with smoke tests and ensure proper Node environment linting configuration for the api directory.
+# Details:
+1. Create test files for serverless endpoints:
+   - `tests/api/checkout.test.ts`
+   - `tests/api/download.test.ts`
+
+2. Implement minimal smoke tests for each endpoint:
+   - Mock necessary dependencies and runtime context
+   - Test basic request/response flow
+   - For functions requiring unavailable runtime components, create documented test stubs with TODOs
+
+3. Set up testing utilities for API endpoints:
+   - Create helper functions for mocking serverless context
+   - Implement request/response mocking utilities
+   - Add fixtures for common test data
+
+4. Configure Node environment linting for api directory:
+   - Update ESLint configuration to include api/**
+   - Add appropriate Node.js environment settings
+   - Ensure serverless-specific rules are applied
+
+5. Update Vitest configuration:
+   - Configure environment for API tests (node vs jsdom)
+   - Set up appropriate mocking strategy for serverless context
+   - Ensure JUnit export includes API test results
+
+6. Document testing approach for serverless functions:
+   - Add README section on testing API endpoints
+   - Include examples of mocking strategies
+   - Document limitations and workarounds
+
+# Test Strategy:
+1. Verify test structure:
+   - Confirm test files exist for both checkout.ts and download.ts endpoints
+   - Validate test file organization follows project conventions
+
+2. Run smoke tests:
+   - Execute `npm run test:api` or equivalent command
+   - Verify tests pass with appropriate mocking
+   - Check test coverage for basic endpoint functionality
+
+3. Validate linting configuration:
+   - Run `npm run lint` and verify api/** files are included
+   - Confirm ESLint applies Node.js environment rules to API files
+   - Test with a deliberate linting error in an API file to ensure detection
+
+4. Review test documentation:
+   - Ensure README updates clearly explain API testing approach
+   - Verify documented stubs include clear TODOs for future implementation
+
+5. CI integration:
+   - Confirm API tests run successfully in CI pipeline
+   - Verify JUnit results include API test outcomes
+   - Check that test coverage reports include API endpoints
+
+# Subtasks:
+## 1. Create Vitest skeleton for Express server (/api/*, /health) [pending]
+### Dependencies: None
+### Description: Add unit-level tests or documented stubs for Express routes with supertest or minimal mocks. Cover /health 200 and shape checks for /api/checkout handler (mock Stripe).
+### Details:
+- Install dev deps if needed (supertest) or document manual plan
+- Add basic test to ensure server boots and responds on /health
+- Mock Stripe SDK for /api/checkout to assert body validation and 200 JSON {url} shape
+

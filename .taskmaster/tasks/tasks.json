@@ -46,7 +46,17 @@
           1
         ],
         "priority": "medium",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Vitest skeleton for Express server (/api/*, /health)",
+            "description": "Add unit-level tests or documented stubs for Express routes with supertest or minimal mocks. Cover /health 200 and shape checks for /api/checkout handler (mock Stripe).",
+            "details": "- Install dev deps if needed (supertest) or document manual plan\n- Add basic test to ensure server boots and responds on /health\n- Mock Stripe SDK for /api/checkout to assert body validation and 200 JSON {url} shape",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          }
+        ]
       }
     ],
     "metadata": {

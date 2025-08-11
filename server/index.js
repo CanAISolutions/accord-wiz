@@ -20,6 +20,11 @@ app.use(express.urlencoded({ extended: false }));
 const distDir = join(__dirname, '..', 'dist');
 app.use(express.static(distDir));
 
+// Health check
+app.get('/health', (req, res) => {
+  res.status(200).send('ok');
+});
+
 // Serve MVP static page directly
 app.get('/mvp', (req, res) => {
   const mvpIndex = join(distDir, 'mvp', 'index.html');
